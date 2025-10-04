@@ -24,6 +24,8 @@ NEXTAUTH_URL="http://localhost:3000"
 DATABASE_URL="postgresql://postgres:postgres@localhost:5432/mydb?schema=public"
 NEXTAUTH_SECRET=
 
+openssl rand -hex 32
+
 3-
 docker-compose down
 docker-compose build --no-cache                        
