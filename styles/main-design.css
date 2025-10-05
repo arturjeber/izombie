@@ -686,6 +686,9 @@
             align-items: center;
         }
 
+				.about-text {
+					justify-items: center;
+				}
         .about-text h2 {
             font-family: 'Orbitron', monospace;
             font-size: 2.5rem;
@@ -698,7 +701,7 @@
         .about-text p {
             line-height: 1.8;
             opacity: 0.8;
-            margin-bottom: 20px;
+            /* margin-bottom: 20px; */
             font-size: 1.1rem;
         }
 
@@ -1114,6 +1117,7 @@
             .about-content,
             .contact-container {
                 grid-template-columns: 1fr;
+								
             }
 
             .about-graphic {

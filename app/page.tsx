@@ -4,6 +4,9 @@ import { useEffect, useState } from "react"
 import { Orbitron, Rajdhani } from "next/font/google"
 import Image from "next/image";
 import Countdown from "@/components/Countdown"
+import { trpc } from "@/lib/trpcClient";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { fa } from "zod/locales";
 
 
 
@@ -20,6 +23,43 @@ export default function HomePage() {
 
   const [currentText, setCurrentText] = useState(0)
   const [activeTab, setActiveTab] = useState("origin")
+  const [messageSent, setMessageSent] = useState(false);
+
+	const createMessage = useMutation({
+		mutationFn: (input: { name: string; email: string; message: string; }) =>
+			trpc.message.create.mutate(input), // ⚡ apenas chama a função
+		onSuccess: () => setMessageSent(true),
+	});
+
+	const submitMessage = async (e: React.FormEvent<HTMLFormElement>) => {
+		e.preventDefault();
+		const form = e.currentTarget;
+		const formData = new FormData(form);
+		const data = {
+			name: formData.get("name"),
+			email: formData.get("email"),
+			message: formData.get("message"),
+		};
+
+		try {
+			createMessage.mutate(data as { name: string; email: string; message: string; });
+			form.reset();
+			
+		} catch (error) {
+			console.error("Error:", error);
+			alert("An error occurred while sending the message.");
+		}
+	};
+
+	const handleTabClick = (tabId: string) => {
+		setActiveTab(tabId);
+		const element = document.getElementById("content");
+    if (element) {
+			const yOffset = -80; // altura do header fixo
+			const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+			window.scrollTo({ top: y, behavior: "smooth" });
+		}
+	}
 
   useEffect(() => {
     const interval = setInterval(() => {
@@ -27,6 +67,7 @@ export default function HomePage() {
     }, 5000)
     return () => clearInterval(interval)
   }, [])
+
 
   const featureTabs = [
     { id: "origin", label: "Origin - Round #7", icon: "/handWhite.png", 
@@ -126,7 +167,7 @@ export default function HomePage() {
               <div
                 key={tab.id}
                 className={`tab-item ${activeTab === tab.id ? "active" : ""}`}
-                onClick={() => setActiveTab(tab.id)}
+                onClick={() => handleTabClick(tab.id)}
               >
                 <span className="tab-icon">
 									 <Image className="dark:invert" 
@@ -141,7 +182,7 @@ export default function HomePage() {
               </div>
             ))}
           </div>
-          <div className="feature-content">
+          <div id="content" className="feature-content">
             {featureTabs.map(tab => (
               <div  className={`content-panel ${activeTab === tab.id ? "active" : ""}`} id={tab.id} key={tab.id}>
                 <h3>{tab.label}</h3>
@@ -157,10 +198,10 @@ export default function HomePage() {
       <section className="about" id="awards">
         <h2 className="section-title">Awards</h2>
         <div className="about-content">
-          <div className="about-text">
-						<div>For the last Zombie or Survivor Standing</div><h2>USD 100</h2>
-						<div>For the most Zombie kills</div><h2>USD 100</h2>
-						<div>For the most Survivor kills</div><h2>USD 100</h2>
+          <div className="about-text" >
+						<p>For the last Zombie or Survivor Standing</p><h2>USD 100</h2>
+						<p>For the most Zombie kills</p><h2>USD 100</h2>
+						<p>For the most Survivor kills</p><h2>USD 100</h2>
           </div>
           <div className="about-visual">
             <div className="about-graphic">
@@ -210,7 +251,7 @@ export default function HomePage() {
 								height={30}
 								priority
 							/>
-							Round #6 - Survivor wins - Rio de Janeiro - 4154s participants 
+							Round #6 - Survivor wins - Rio de Janeiro - 4154 participants 
 						</p>
 						<p className="flex items-center gap-3">
 							<Image className="dark:invert" 
@@ -272,23 +313,34 @@ export default function HomePage() {
         <h2 className="section-title">Get In Touch</h2>
         <div className="contact-container">
           <div className="contact-form">
-            <form onSubmit={(e) => { e.preventDefault(); alert("Message sent!"); e.currentTarget.reset() }}>
-              <div className="form-group">
-                <label htmlFor="name">Name</label>
-                <input type="text" id="name" name="name" required />
-              </div>
-              <div className="form-group">
-                <label htmlFor="email">Email</label>
-                <input type="email" id="email" name="email" required />
-              </div>
-              
-              <div className="form-group">
-                <label htmlFor="message">Message</label>
-                <textarea id="message" name="message" required></textarea>
-              </div>
-              <button type="submit" className="submit-btn">Send Message</button>
-            </form>
+					
+						{messageSent ? (
+							<div className="success-message">
+								<p>Thank you for reaching out! We'll get back to you soon.</p>
+							</div>
+						) : (
+							<>
+								<h3>Send Us a Message</h3>
+								<form onSubmit={submitMessage}>
+									<div className="form-group">
+										<label htmlFor="name">Name</label>
+										<input type="text" id="name" name="name" required />
+									</div>
+									<div className="form-group">
+										<label htmlFor="email">Email</label>
+										<input type="email" id="email" name="email" required />
+									</div>
+									
+									<div className="form-group">
+										<label htmlFor="message">Message</label>
+										<textarea id="message" name="message" required></textarea>
+									</div>
+									<button type="submit" className="submit-btn">Send Message</button>
+								</form>
+							</>
+						)}
           </div>
+					
 
           <div className="contact-info">
             <h3>Connect With Us</h3>

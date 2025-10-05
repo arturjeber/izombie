@@ -5,6 +5,7 @@ import '@/styles/main-design.css'
 
 import { useState, useEffect } from "react"
 import { Orbitron, Rajdhani } from 'next/font/google'
+import Providers from "@/lib/providers"
 
 const orbitron = Orbitron({ subsets: ['latin'], weight: ['400','700','900'] })
 const rajdhani = Rajdhani({ subsets: ['latin'], weight: ['300','400','500','700'] })
@@ -52,7 +53,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 
 
         {/* Conteúdo da página */}
-        {children}
+				<Providers>
+        	{children}
+				</Providers>
 
         {/* Footer */}
         <footer>

@@ -12,6 +12,7 @@ export const { auth } = NextAuth({
 export default auth((req) => {
   const path = req.nextUrl.pathname
 
+	console.log("Auth Middleware - Path:", path)
   // Exceções manuais
   if (
     path === "/" ||
@@ -24,6 +25,7 @@ export default auth((req) => {
     path.startsWith("/favicon.ico") ||
 		path.startsWith("/manifest.webmanifest") ||  // <-- ADICIONE ESSA LINHA
 		path.startsWith("/api/auth") ||   // <-- LIBERA O NEXTAUTH
+		path.startsWith("/api/trpc/message.create") ||   // <-- LIBERA O NEXTAUTH
     path.match(/\.(svg|png|jpg|jpeg|gif|webp)$/)
   ) {
     return
