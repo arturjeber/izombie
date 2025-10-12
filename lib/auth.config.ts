@@ -1,23 +1,68 @@
+// auth.config.ts
+import type { NextAuthConfig } from "next-auth"
+//import crypto from "crypto";
+
+
+
+export default {
+	providers: [],
+  session: { strategy: "jwt" },
+	secret: process.env.AUTH_SECRET,
+  pages: {
+    signIn: "/login",
+  },
+} satisfies NextAuthConfig
+
+
+
+
+
+
+
+
+
+
+/*
 // auth.ts
-import { prisma } from "@/lib/prisma";
-import { PrismaAdapter } from "@auth/prisma-adapter";
-import bcrypt from "bcryptjs";
-import type { Session } from "next-auth";
 import NextAuth from "next-auth";
+import { PrismaAdapter } from "@auth/prisma-adapter";
+import type { JWT, Session } from "next-auth";
+import { prisma } from "@/lib/prisma";
+import bcrypt from "bcryptjs";
 import Credentials from "next-auth/providers/credentials";
-import { randomUUID } from "crypto"
+//import crypto from "crypto";
+import Nodemailer from "next-auth/providers/nodemailer";
 import { EmailClient } from "@azure/communication-email";
-import authConfig from "./auth.config";
-import { trpc } from "./trpcClient";
 
 const ACCESS_TOKEN_LIFETIME = 60 * 15; // 15 min
 const REFRESH_TOKEN_LIFETIME = 60 * 60 * 24 * 7; // 7 dias
 
-const emailClient = new EmailClient(process.env.AZURE_EMAIL_CONNECTION_STRING ?? "");
+export function generateUUID(): string {
+  let d = new Date().getTime(); // timestamp em ms
+  let d2 = (typeof performance !== "undefined" && performance.now && performance.now() * 1000) || 0; // microsegundos no browser
 
-export const { auth, handlers, signIn, signOut } = NextAuth({
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
+    let r = Math.random() * 16; // pseudo-random
+    if (d > 0) {
+      r = (d + r) % 16 | 0;
+      d = Math.floor(d / 16);
+    } else {
+      r = (d2 + r) % 16 | 0;
+      d2 = Math.floor(d2 / 16);
+    }
+    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+  });
+}
+
+// lib/auth.config.ts
+import type AuthOptions  from "next-auth";
+import CredentialsProvider from "next-auth/providers/credentials";
+import EmailProvider from "next-auth/providers/email";
+
+export const authConfig: AuthOptions = {
   adapter: PrismaAdapter(prisma),
-	...authConfig,
+  session: { strategy: "jwt" }, 
+  secret: process.env.NEXTAUTH_SECRET,
   providers: [
     Credentials({
       name: "Credentials",
@@ -40,7 +85,9 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
 
         const isValid = await bcrypt.compare(credentials.password as string, user.password);
 
-        if (!isValid) throw new Error("Senha incorreta.");
+        if (!isValid) {
+          throw new Error("Senha incorreta.");
+        }
 
         return {
           id: user.id,
@@ -52,91 +99,19 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         };
       },
     }),
-		Credentials({
-			id: "email-code",
-			name: "Email + Código",
-			credentials: {
-				email: { label: "Email", type: "email" },
-				code: { label: "Código", type: "text" },
-				name: { label: "Código", type: "text" },
-				pass: { label: "Código", type: "password" },
+		Nodemailer({
+			id: "codeMail",
+			server: {
+				host: process.env.EMAIL_SERVER_HOST,
+				port: Number(process.env.EMAIL_SERVER_PORT),
+				auth: {
+					user: process.env.EMAIL_SERVER_USER,
+					pass: process.env.EMAIL_SERVER_PASSWORD,
+				},
 			},
-			async authorize({ email, name, pass, code }) {
-			
-				const record = await prisma.verificationToken.findFirst({
-					where: { identifier: email as string },
-					orderBy: { expires: "desc" }, // ← pega o mais recente
-				});
-		
-				if (!record) return null;
-
-				const isValid = await bcrypt.compare(code as string, record.token);
-
-				if (!isValid) throw new Error("Invalid code")
-		
-				let user = await prisma.user.findUnique({ where: { email: email as string } });
-
-				if (user) throw new Error("User exists");
-
-				if (!user) {
-					user = await prisma.user.create({ data: { 
-						email: email as string,
-						name: name as string,
-						password: await bcrypt.hash(pass as string, 10),
-						emailVerified: new Date()
-					} });
-
-					await prisma.player.create({data: {userId: user.id}})					
-				}
-		
-				return {
-          id: user.id,
-          name: user.name,
-          email: user.email,
-          image: user.image,
-          emailVerified: user.emailVerified,
-          tokenVersion: user.tokenVersion ?? 0,
-        };
-			},
-		}),
-		Credentials({
-			id: "email-request",
-			name: "Email request code",
-			credentials: {
-				email: { label: "Email", type: "email" },
-			},
-			async authorize({ email }) {
-				
-				if (!email) throw new Error("Email é obrigatório");
-
-				const code = Math.floor(100000 + Math.random() * 900000).toString();
-				console.log("COOOOOOO", code)
-
-				await prisma.verificationToken.create({
-          data: {
-            identifier: email as string,
-            token: await bcrypt.hash(code, 10),
-            expires: new Date(Date.now() + 10 * 60 * 1000), // 10 minutos
-          },
-        });
-
-        // envia o e-mail via Azure
-        const message = {
-          senderAddress: process.env.EMAIL_FROM ?? "",
-          content: {
-            subject: "iZombie - Validation code",
-            plainText: `Your validation code is: ${code}\nExpires in 10 minutes.`,
-            html: `<p>Your validation code is: <b>${code}</b></p><p>Expires in 10 minutes.</p>`,
-          },
-          recipients: { to: [{ address: email as string }] },
-        };
-
-        const poller = await emailClient.beginSend(message);
-        await poller.pollUntilDone();
-
-				return null;
-			},
-		})
+			from: `"iZombie Central" <${process.env.EMAIL_FROM}>`,
+			maxAge: 10 * 60, // Código expira em 10 minutos
+		}),		
   ],
   callbacks: {
     async jwt({ token, user }) {
@@ -146,8 +121,8 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         const typedUser = user as typeof user & { tokenVersion: number; emailVerified: Date | null  };
 
         token.userId = typedUser.id;
-        token.accessToken = randomUUID();
-        token.refreshToken = randomUUID();
+        token.accessToken = generateUUID();
+        token.refreshToken = generateUUID();
         token.accessTokenExpires = now + ACCESS_TOKEN_LIFETIME;
         token.refreshTokenExpires = now + REFRESH_TOKEN_LIFETIME;
 
@@ -169,7 +144,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           throw new Error("Sessão inválida");
         }
 
-        token.accessToken = randomUUID();
+        token.accessToken = generateUUID();
         token.accessTokenExpires = now + ACCESS_TOKEN_LIFETIME;
       }
 
@@ -195,3 +170,6 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     },
   },
 });
+
+
+/** */

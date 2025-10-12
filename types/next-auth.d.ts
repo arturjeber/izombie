@@ -8,6 +8,7 @@ declare module "next-auth" {
       name?: string | null;
       email?: string | null;
       image?: string | null;
+      emailVerified?: string | null;
 			tokenVersion?: number;
     };
     accessToken: string;
@@ -19,6 +20,7 @@ declare module "next-auth" {
     userId: string;
     tokenVersion?: number;
     accessToken: string;
+		emailVerified: string | null;
     accessTokenExpires: number;
     refreshToken: string;
   }

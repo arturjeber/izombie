@@ -8,12 +8,12 @@ export const userRouter = createTRPCRouter({
     .input(z.object({ id: z.string() }))
     .query(({ ctx, input }) => ctx.prisma.user.findUnique({ where: { id: input.id } })),
 
-  create: publicProcedure
-    .input(z.object({ name: z.string().optional(), email: z.string().email() }))
-    .mutation(({ ctx, input }) => ctx.prisma.user.create({ data: input })),
+  createPlayer: publicProcedure
+    .input(z.object({ userId: z.string()}))
+    .mutation(({ ctx, input }) => ctx.prisma.player.create({ data: input })),
 
   update: publicProcedure
-    .input(z.object({ id: z.string(), name: z.string().optional(), email: z.string().optional() }))
+    .input(z.object({ id: z.string(), name: z.string().optional(), password: z.string().optional() }))
     .mutation(({ ctx, input }) => {
       const { id, ...data } = input;
       return ctx.prisma.user.update({ where: { id }, data });
@@ -24,5 +24,23 @@ export const userRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       await ctx.prisma.user.delete({ where: { id: input.id } });
       return { success: true };
+    }),
+
+	loaduser: publicProcedure
+    .mutation(async ({ ctx, input }) => {
+			const userId = ctx.session?.user.id;
+      const player = await ctx.prisma.player.findUnique({
+				where: { userId },
+				include: {
+					paths: {
+						orderBy: { timestamp: "desc" },
+						take: 1,
+					},
+					_count: {
+						select: { mortes: true },
+					},
+				},
+			});
+			return player
     }),
 });

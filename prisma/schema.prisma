@@ -4,10 +4,8 @@ datasource db {
 }
 
 generator client {
-  provider = "prisma-client-js"
-  binaryTargets = ["native", "darwin-arm64", "linux-musl", "linux-musl-arm64-openssl-3.0.x"]
-
-
+  provider       = "prisma-client-js"
+  binaryTargets  = ["native", "darwin-arm64", "linux-musl", "linux-musl-arm64-openssl-3.0.x"]
 }
 
 model User {
@@ -17,10 +15,11 @@ model User {
   emailVerified DateTime?
   image         String?
   password      String?   // Para login com email/senha
-	tokenVersion  Int       @default(0) // Para invalidar JWTs globalmente
-	createdAt 		DateTime @default(now())
-	updatedAt     DateTime  @updatedAt // <--- útil para auditoria
-  accounts      Account[] 
+  tokenVersion  Int       @default(0) // Para invalidar JWTs globalmente
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+  accounts      Account[]
+  player        Player?   // relação 1:1 com Player
 }
 
 model Account {
@@ -50,10 +49,119 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-
 model MessagesHome {
-	id    	Int    @id @default(autoincrement())
-	name 		String
-	email		String
-	message String
+  id      Int    @id @default(autoincrement())
+  name    String
+  email   String
+  message String
+}
+
+model Player {
+  id               Int        @id @default(autoincrement())
+  status           Int        @default(0) // 0 -> Survivor, 1 -> Zombie , 2 -> Observador
+  limiteMochila    Int        @default(2)  
+  limiteArmas      Int        @default(2)
+	
+	lastPathId       Int?        @unique // último Path
+  lastPath         Path?       @relation("LastPath", fields: [lastPathId], references: [id])
+
+	userId           String      @unique  // garante relação 1:1
+	user             User        @relation(fields: [userId], references: [id])
+
+	itensMochila     Itens[]
+  itensArmas       Armas[]
+  vitimasRecebidas Kill[]      @relation("Vitima")
+  mortes           Kill[]      @relation("Matador")
+  paths            Path[]      @relation("PlayerPath") // todas as leituras de Path
+  
+  
+  @@index([status])
+  @@index([status, id])
+}
+
+model Itens {
+  id       	Int    @id @default(autoincrement())
+  tamanho  	Int
+	nome			String
+	descricao String
+	efeito		String
+  player  	Player @relation(fields: [playerId], references: [id])
+  playerId Int
+}
+
+model Armas {
+  id         Int     @id @default(autoincrement())
+	name			 		String
+	description  	String
+	size    			Int
+  quantity 			Int     @default(1)
+  efficiency 		Float
+  player     Player  @relation(fields: [playerId], references: [id])
+  playerId   Int
+}
+
+model Kill {
+  id           Int      @id @default(autoincrement())
+  matador      Player   @relation("Matador", fields: [matadorId], references: [id])
+  matadorId    Int
+  vitima       Player   @relation("Vitima", fields: [vitimaId], references: [id])
+  vitimaId     Int
+  statusVitima Int
+  createdAt    DateTime @default(now())
+}
+
+model Path {
+  id        Int      @id @default(autoincrement())
+  
+  latitude  Float
+  longitude Float
+  accuracy  Float    // margem de erro do GPS em metros
+  timestamp DateTime @default(now())
+
+	playerId  Int
+	player    Player   @relation("PlayerPath", fields: [playerId], references: [id])
+
+	lastPathOf Player? @relation("LastPath") 
+	
+  @@index([playerId, timestamp])
+}
+
+model Map {
+  id          Int              @id @default(autoincrement())
+  latitude    Float
+  longitude   Float
+  accuracy    Float
+  name        String
+  description String?
+  armas       MapArma[]
+  comidas     MapItens[]
+  comunicados MapComunicado[]
+}
+
+model MapArma {
+  id         		Int     @id @default(autoincrement())
+  map        		Map     @relation(fields: [mapId], references: [id])
+  mapId     		Int
+	name			 		String
+	description  	String
+	size    			Int
+  quantity 			Int     @default(1)
+  efficiency 		Float
+}
+
+model MapItens {
+  id        Int     @id @default(autoincrement())
+  map       Map     @relation(fields: [mapId], references: [id])
+  mapId     Int
+  comida    String
+  quantidade Int    @default(1)
+  efeito   Int
+}
+
+model MapComunicado {
+  id       Int     @id @default(autoincrement())
+  map      Map     @relation(fields: [mapId], references: [id])
+  mapId    Int
+  mensagem String
+  criadoEm DateTime @default(now())
 }

@@ -1,17 +1,15 @@
 "use client"
 
-import { useEffect, useState } from "react"
-import { Orbitron, Rajdhani } from "next/font/google"
+import Countdown from "@/components/Countdown";
+import { useCreateMessage } from "@/schemas/message";
+import { Orbitron, Rajdhani } from "next/font/google";
 import Image from "next/image";
-import Countdown from "@/components/Countdown"
-import { trpc } from "@/lib/trpcClient";
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { fa } from "zod/locales";
-
-
+import { useEffect, useState } from "react";
+import { launchDate } from "@/lib/utils";
 
 const orbitron = Orbitron({ subsets: ['latin'], weight: ['400','700','900'] })
 const rajdhani = Rajdhani({ subsets: ['latin'], weight: ['300','400','500','700'] })
+
 
 export default function HomePage() {
 	
@@ -25,12 +23,8 @@ export default function HomePage() {
   const [activeTab, setActiveTab] = useState("origin")
   const [messageSent, setMessageSent] = useState(false);
 
-	const createMessage = useMutation({
-		mutationFn: (input: { name: string; email: string; message: string; }) =>
-			trpc.message.create.mutate(input), // ⚡ apenas chama a função
-		onSuccess: () => setMessageSent(true),
-	});
-
+	const { mutate: sendMsg } = useCreateMessage();
+	
 	const submitMessage = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		const form = e.currentTarget;
@@ -42,11 +36,14 @@ export default function HomePage() {
 		};
 
 		try {
-			createMessage.mutate(data as { name: string; email: string; message: string; });
-			form.reset();
-			
-		} catch (error) {
-			console.error("Error:", error);
+			sendMsg(data as { name: string; email: string; message: string; },
+				{onSuccess: () => {
+					setMessageSent(true)
+					form.reset()
+				}}
+			);
+		} 
+		catch (error) {
 			alert("An error occurred while sending the message.");
 		}
 	};
@@ -147,12 +144,12 @@ export default function HomePage() {
       <section className="hero" id="counter">
         <div className="hero-content">
         
-            <h1 className={`${orbitron.className} glitch-text`}><Countdown targetDate="2025-11-23T23:23:00" /></h1>
+            <h1 className={`${orbitron.className} glitch-text`}><Countdown targetDate={launchDate} /></h1>
             <p className={`${rajdhani.className} subtitle`}>to next round</p>
         
         </div>
         <div className="cta-container">
-          <a href="/login" className="cta-button cta-primary">Join</a>
+          <a href="/join" className="cta-button cta-primary">Join</a>
           <a href="#game" className="cta-button cta-secondary">the game</a>
         </div>
       </section>

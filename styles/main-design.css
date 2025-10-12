@@ -1,13 +1,16 @@
-
 @charset "utf-8";
+
+
 
 /* CSS Document */
 
-* {
+				/*
+				* {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
+						/**/
 
         body {
             font-family: 'Rajdhani', sans-serif;
@@ -469,6 +472,8 @@
             font-weight: 300;
         }
 
+				
+
         @keyframes fade-in {
             from { opacity: 0; }
             to { opacity: 0.6; }
@@ -573,6 +578,17 @@
             -webkit-text-fill-color: transparent;
             text-transform: uppercase;
         }
+				.box-title {
+					font-family: 'Orbitron', monospace;
+					font-size: 1.8rem;
+					font-weight: 400;
+					
+					margin-bottom: 10px;
+					background: linear-gradient(45deg, #FF5E00, #00B2FF);
+					-webkit-background-clip: text;
+					-webkit-text-fill-color: transparent;
+					text-transform: uppercase;
+			}
 
         .features-container {
             display: grid;
@@ -814,6 +830,15 @@
             padding: 40px;
             backdrop-filter: blur(10px);
         }
+
+				.box {
+					background: rgba(255, 255, 255, 0.03);
+					border: 1px solid rgba(255, 94, 0, 0.2);
+					border-radius: 10px;
+					padding: 20px;
+					
+					backdrop-filter: blur(10px);
+			}
 
         .form-group {
             margin-bottom: 25px;
