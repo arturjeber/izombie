@@ -143,10 +143,7 @@ export default function HomePage() {
 			{/* Counter */}
       <section className="hero" id="counter">
         <div className="hero-content">
-        
-            <h1 className={`${orbitron.className} glitch-text`}><Countdown targetDate={launchDate} /></h1>
-            <p className={`${rajdhani.className} subtitle`}>to next round</p>
-        
+					<h1 className={`${orbitron.className} glitch-text`}><Countdown targetDate={launchDate} /></h1>
         </div>
         <div className="cta-container">
           <a href="/join" className="cta-button cta-primary">Join</a>

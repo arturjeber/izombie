@@ -1,5 +1,8 @@
 "use client"; // necessário no Next.js 13+ se estiver em app directory
+import { time } from "console";
 import { useEffect, useState } from "react";
+import { Orbitron, Rajdhani } from "next/font/google";
+const rajdhani = Rajdhani({ subsets: ['latin'], weight: ['300','400','500','700'] })
 
 interface CountdownProps {
   targetDate: string; // ex: "2025-10-10T18:30:00"
@@ -31,11 +34,18 @@ export default function Countdown({ targetDate }: CountdownProps) {
   const minutes = Math.floor((timeLeft / (1000 * 60)) % 60);
   const seconds = Math.floor((timeLeft / 1000) % 60);
 
-	
-	if(timeLeft <= 0 && difference > 0) return <>countdown</>
+
+	if(timeLeft <= 0 && difference < 0) return (
+		<div style={{ fontFamily: "Orbitron, sans-serif", fontSize: "2rem" }}>
+      Round #7 is ON!
+    </div>
+	)
+
   return (
     <div style={{ fontFamily: "Orbitron, sans-serif", fontSize: "2rem" }}>
       {days} days <br />{hours}h {minutes}m {seconds}s
+			<div className={`${rajdhani.className} subtitle`}>to next round</div>
     </div>
+
   );
 }

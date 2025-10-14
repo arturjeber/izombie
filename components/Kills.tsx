@@ -1,6 +1,6 @@
 import { useEffect } from "react"
 
-export const Kills = ({kills}: {kills: string}) =>{
+export const Kills = ({kills}: {kills: number}) =>{
 	
 
 	return(

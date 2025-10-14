@@ -61,6 +61,7 @@ model Player {
   status           Int        @default(0) // 0 -> Survivor, 1 -> Zombie , 2 -> Observador
   limiteMochila    Int        @default(2)  
   limiteArmas      Int        @default(2)
+	energy 					 Int				@default(100)
 	
 	lastPathId       Int?        @unique // último Path
   lastPath         Path?       @relation("LastPath", fields: [lastPathId], references: [id])
@@ -121,6 +122,10 @@ model Path {
 	playerId  Int
 	player    Player   @relation("PlayerPath", fields: [playerId], references: [id])
 
+	mapId 		Int      
+  map   		Map @relation("PathMap", fields: [mapId], references: [id])
+  
+
 	lastPathOf Player? @relation("LastPath") 
 	
   @@index([playerId, timestamp])
@@ -136,6 +141,8 @@ model Map {
   armas       MapArma[]
   comidas     MapItens[]
   comunicados MapComunicado[]
+
+  path   			Path[] 							@relation("PathMap") // relacionamento 1:1
 }
 
 model MapArma {
@@ -155,7 +162,7 @@ model MapItens {
   mapId     Int
   comida    String
   quantidade Int    @default(1)
-  efeito   Int
+  efeito   	String
 }
 
 model MapComunicado {

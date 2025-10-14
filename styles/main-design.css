@@ -387,10 +387,18 @@
         .subtitle {
             font-size: 1.5rem;
             margin: 20px 0;
-            opacity: 0;
+            opacity: 100;
             text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
             font-weight: 300;
         }
+
+				.subtitle2 {
+					font-size: 1.2rem;
+					margin-top: 10px;
+					opacity: 100;
+					text-shadow: 0 0 10px rgba(255, 255, 255, 0.3);
+					font-weight: 300;
+				}
 
         .subtitle.visible {
             animation: subtitleFade 0.8s ease-out 0.5s forwards;
@@ -507,6 +515,24 @@
             font-weight: 700;
         }
 
+				.cta-button2 {			
+					padding: 0px 4px;		
+					border: none;
+					font-size: 0.8rem;
+					cursor: pointer;
+					position: relative;
+					overflow: hidden;
+					transition: all 0.3s ease;
+					text-decoration: none;
+					display: inline-block;
+					text-transform: uppercase;
+					letter-spacing: 0.1em;
+					font-family: 'Orbitron', monospace;
+					font-weight: 700;
+					float: right;
+					
+			}
+
         .cta-primary {
             background: linear-gradient(45deg, #FF5E00, #00B2FF);
             color: white;
@@ -589,6 +615,15 @@
 					-webkit-text-fill-color: transparent;
 					text-transform: uppercase;
 			}
+
+			.box-title2 {
+				font-family: 'Orbitron', monospace;
+				font-size: 1.8rem;
+				font-weight: 400;
+				margin-bottom: 10px;
+				-webkit-text-fill-color: rgb(159, 159, 159);
+				text-transform: uppercase;
+		}
 
         .features-container {
             display: grid;
@@ -690,7 +725,7 @@
 
         /* About Section */
         .about {
-            padding: 100px 20px;
+            padding: 10px 20px;
             max-width: 1200px;
             margin: 0 auto;
         }

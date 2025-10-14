@@ -59,12 +59,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 					{children}
 				</Providers>
 
-				{/* Footer */}
-				<footer>
-					<div className="footer-content">
-						<p className="copyright">© 2025 iZombie. All rights reserved.</p>
-					</div>
-				</footer>
 			</body>
 		</html>
 	)
