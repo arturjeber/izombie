@@ -6,6 +6,7 @@ type Message = {
   user: string;
   text: string;
   timestamp: number;
+	estacao: string;
 };
 
 const messages: Message[] = [];
@@ -16,6 +17,7 @@ export const chatRouter = createTRPCRouter({
       z.object({
         user: z.string(),
         text: z.string().min(1).max(200),
+				estacao: z.string(),
       })
     )
     .mutation(({ input }) => {
@@ -33,6 +35,7 @@ export const chatRouter = createTRPCRouter({
         user: input.user,
         text: input.text,
         timestamp: now,
+				estacao: input.estacao
       };
 
       messages.push(message);

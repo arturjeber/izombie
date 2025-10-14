@@ -39,6 +39,7 @@ export const PlayerMoviment = () => {
 			mapId: movePlayerTo.id
 		})
 
+		utils.map.getAllByUser.invalidate();
 		utils.user.loaduser.invalidate(); // refaz a query loaduser
 		setMovePlayerTo(null)
 	}
@@ -60,7 +61,7 @@ export const PlayerMoviment = () => {
 	}
 
 
-	const router = useRouter();
+	
 	useEffect(() => {
 			console.log("jjjj2", window.location.hash)
 			// Verifica se o hash é "#moveto"

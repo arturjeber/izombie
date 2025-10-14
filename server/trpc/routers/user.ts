@@ -41,7 +41,7 @@ export const userRouter = createTRPCRouter({
       return { success: true };
     }),
 
-		loaduser: publicProcedure
+	loaduser: publicProcedure
     .query(async ({ ctx }) => {
 			const userId = ctx.session?.user.id;
       const player = await ctx.prisma.player.findUnique({
@@ -67,7 +67,7 @@ export const userRouter = createTRPCRouter({
 			});
 			return player
     }),
-		openDoor: publicProcedure
+	openDoor: publicProcedure
 		.input(z.object({ 
 			latitude: z.number(),
 			longitude: z.number(),

@@ -19,6 +19,17 @@ export default function HomePage() {
     { title: "ELECTRIC DREAMS", subtitle: "Powering tomorrow's digital revolution today" },
   ]
 
+
+	const [menuOpen, setMenuOpen] = useState(false)
+  const toggleMenu = () => setMenuOpen(!menuOpen)
+  const [scrolled, setScrolled] = useState(false)
+
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 50)
+    window.addEventListener("scroll", handleScroll)
+    return () => window.removeEventListener("scroll", handleScroll)
+  }, [])
+
   const [currentText, setCurrentText] = useState(0)
   const [activeTab, setActiveTab] = useState("origin")
   const [messageSent, setMessageSent] = useState(false);
@@ -139,6 +150,24 @@ export default function HomePage() {
 
   return (
     <>
+		
+				{/* Navbar */}
+				<nav id="navbar" className={scrolled ? "scrolled" : ""}>
+					<div className="nav-container">
+						<a href="/" className="logo-link">
+							<span className={`${orbitron.className} logo-text`}>iZombie</span>
+						</a>
+						
+						<div className={`menu-toggle ${menuOpen ? "active" : ""}`} onClick={toggleMenu}>
+							<span></span><span></span><span></span>
+						</div>
+						<ul className={`nav-links ${menuOpen ? "active" : ""}`}>
+							<li><a href="#game">Round # 7</a></li>
+							<li><a href="#awards">Awards</a></li>
+							<li><a href="#contact">Contact</a></li>
+						</ul>
+					</div>
+				</nav>
 
 			{/* Counter */}
       <section className="hero" id="counter">

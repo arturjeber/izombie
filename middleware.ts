@@ -11,9 +11,7 @@ export default auth(async function middleware(req: NextRequest & { auth?: any })
 
   const email = req.cookies.get("pendingEmail")?.value;
 
-	
 
-	console.log("jjj", path, email)
 	if(session && 
 		(
 			path == ("/") ||

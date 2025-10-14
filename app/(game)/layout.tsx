@@ -23,43 +23,27 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 	}, [])
 
 	return (
-		<html lang="en">
-			<body>
-				{/* Background */}
-				<div className="grid-bg"></div>
-				<div className="gradient-overlay"></div>
-				<div className="scanlines"></div>
-				<div className="shapes-container">
-					<div className="shape shape-circle"></div>
-					<div className="shape shape-triangle"></div>
-					<div className="shape shape-square"></div>
-				</div>
+<>
+	{/* Navbar */}
+	<nav id="navbar" className={scrolled ? "scrolled" : ""}>
+		<div className="nav-container">
+			<a href="/" className="logo-link">
+				<span className={`${orbitron.className} logo-text`}>iZombie</span>
+			</a>
+			
+			<div className={`menu-toggle ${menuOpen ? "active" : ""}`} onClick={toggleMenu}>
+				<span></span><span></span><span></span>
+			</div>
+			<ul className={`nav-links ${menuOpen ? "active" : ""}`}>
+				<li><a href="#game">Round # 7</a></li>
+				<li><a href="#awards">Awards</a></li>
+				<li><a href="#contact">Contact</a></li>
+			</ul>
+		</div>
+	</nav>
+	{children}
+			
 
-				{/* Navbar */}
-				<nav id="navbar" className={scrolled ? "scrolled" : ""}>
-					<div className="nav-container">
-						<a href="/" className="logo-link">
-							<span className={`${orbitron.className} logo-text`}>iZombie</span>
-						</a>
-						
-						<div className={`menu-toggle ${menuOpen ? "active" : ""}`} onClick={toggleMenu}>
-							<span></span><span></span><span></span>
-						</div>
-						<ul className={`nav-links ${menuOpen ? "active" : ""}`}>
-							<li><a href="#game">Round # 7</a></li>
-							<li><a href="#awards">Awards</a></li>
-							<li><a href="#contact">Contact</a></li>
-						</ul>
-					</div>
-				</nav>
-
-
-				{/* Conteúdo da página */}
-				<Providers>
-					{children}
-				</Providers>
-
-			</body>
-		</html>
+	</>
 	)
 }

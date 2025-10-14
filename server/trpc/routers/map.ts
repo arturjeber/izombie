@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "../trpc";
+import { getAllByAltText } from "@testing-library/react";
 
 export const mapRouter = createTRPCRouter({
 	getLocationsByScan: publicProcedure
@@ -34,7 +35,36 @@ export const mapRouter = createTRPCRouter({
 					comunicados: true,
 				},
 			 });
-			
+		}),
+	getAllByUser: publicProcedure
+		.query(async ({ ctx, input }) => {
+			const pontos = await ctx.prisma.map.findMany({
+				where: {
+					OR: [
+						{ status: 0 }, // pontos públicos
+						{ path: { some: {} } }, // pontos que têm pelo menos 1 path
+					],
+				},
+				include: {
+					path: true, // se quiser trazer os paths relacionados
+				},
+			});
+	
+			return pontos;
+		}),
+	getAllUsersByLocation: publicProcedure
+		.input(z.object({ id: z.number()}))
+		.query(async ({ ctx, input }) => {
+			return await ctx.prisma.player.count({
+				where: {
+					// cada jogador deve ter pelo menos um path cujo timestamp
+					// é o mais recente E o mapId seja igual ao informado
+					lastPath: {
+						mapId: input.id
+					}
+				}
+			});
+	
 		}),
 
 

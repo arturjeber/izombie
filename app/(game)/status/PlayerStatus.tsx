@@ -41,7 +41,6 @@ export const PlayerStatus = () => {
 	}
 
 	const stringTimeLeft = () => {
-		console.log("isOn", player, timeLeftQrCode)
 		if(!isOn) return "loading round #7"
 		if(timeLeftQrCode == undefined) return "loading..."
 		return msToHoursMinutes(timeLeftQrCode) || ""

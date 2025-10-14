@@ -1,4 +1,4 @@
-import Image from "next/image";
+"use client"
 
 interface BoxBaseProps {
   titulo: string;
@@ -9,9 +9,9 @@ interface BoxBaseProps {
 
 export function BoxBase({ superTitulo, titulo, children, status = null }: BoxBaseProps) {
   return (
-    <section className="about w-full">
+    <section className="about w-full ">
 			
-      <div className="box ml-2 mr-2">
+      <div className="box ml-2 mr-2 h-full">
 				{superTitulo &&
 					<h2 className="box-title2 truncate">
 						<div className="flex items-center text-sm gap-2">
