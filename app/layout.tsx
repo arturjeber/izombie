@@ -61,12 +61,13 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         	
 				</Providers>
 
-        {/* Footer */}
+        {/* Footer
         <footer className="fixed bottom-0 w-full">
           <div className="footer-content">
             <p className="copyright">© 2025 iZombie. All rights reserved.</p>
           </div>
         </footer>
+				*/}
       </body>
     </html>
   )

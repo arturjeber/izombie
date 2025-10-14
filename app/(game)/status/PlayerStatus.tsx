@@ -15,7 +15,6 @@ import Image from "next/image";
 
 export const PlayerStatus = () => {
 	const [error, setError] = useState("");
-	//const [player, setPlayer] = useState<any>(null);
 	const [timeLeftQrCode, setTimeLeftQrCode] = useState<number>();
 	const [energy, setEnergy] = useState<number>(100);
 	const [kills, setKills] = useState<string>("Loading...");

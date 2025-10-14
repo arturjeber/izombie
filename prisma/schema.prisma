@@ -141,6 +141,9 @@ model Map {
   armas       MapArma[]
   comidas     MapItens[]
   comunicados MapComunicado[]
+	status      Int        @default(0) //0 -> public,  1 -> hidden ( se torna publico na primeira leitura) 2 -> secreto ( sempre hidden)
+
+
 
   path   			Path[] 							@relation("PathMap") // relacionamento 1:1
 }
