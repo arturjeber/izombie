@@ -8,7 +8,6 @@ export const ListaItensMapa = ({location}: {location: any}) => {
 	const [error, setError] = useState<string>("")
 	const utils = trpc.useUtils(); // acesso às funções de cache
 
-	console.log(location)
 	const itens = location?.itens
 	const eat = trpc.user.eat.useMutation({
 		onSuccess: () => utils.user.loaduser.invalidate(),
