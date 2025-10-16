@@ -4,10 +4,12 @@ services:
     container_name: app_dev
     ports:
       - "3000:3000"
+      - "9229:9229"  # Porta do debugger
+
     environment:
       NODE_ENV: development
       DATABASE_URL: postgres://postgres:postgres@db:5432/mydb
-    command: sh -c "pnpm prisma generate && pnpm dev"
+      command: sh -c "pnpm prisma generate || true && node --inspect=0.0.0.0:9229 node_modules/next/dist/bin/next dev"
     volumes:
       - .:/app             # monta o código local no container
       - /app/node_modules  # evita conflito de node_modules

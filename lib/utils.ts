@@ -1,6 +1,6 @@
 import { isGameOn } from "./utilsSurvivor";
 
-export const launchDate = "2025-10-13T16:53:00.000Z";
+export const launchDate = "2025-10-15T23:41:00.000Z";
 
 export const msToHoursMinutes = (ms: number|null) => {
 	if(ms == null) return null;

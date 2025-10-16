@@ -24,7 +24,7 @@ export const PlayerMoviment = () => {
 	const map = trpc.map.getLocationsByScan.useMutation();
 
 
-	const utils = trpc.useContext();
+	const utils = trpc.useUtils();
 
 
 	const enterDoor = async() => {
@@ -50,7 +50,6 @@ export const PlayerMoviment = () => {
 
 	const newLocation = async (qrInfo: string) => {
 		const location = await getCurrentLocation();
-		console.log("lllll", location)
 		const t = await map.mutateAsync({lat: location.latitude, long: location.longitude})
 		if(t){
 			setMovePlayerTo(t[0])
@@ -63,7 +62,6 @@ export const PlayerMoviment = () => {
 
 	
 	useEffect(() => {
-			console.log("jjjj2", window.location.hash)
 			// Verifica se o hash é "#moveto"
 			if (window.location.hash === "#moveto") {
 				newLocation("#moveto")	

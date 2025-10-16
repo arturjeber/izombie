@@ -22,5 +22,9 @@ COPY . .
 # Gerar o cliente Prisma
 #RUN pnpm prisma generate
 
+# Expõe a porta padrão do Next.js e do debugger
+EXPOSE 3000 9229
+
+
 # Comando default para desenvolvimento
 CMD ["pnpm", "dev"]

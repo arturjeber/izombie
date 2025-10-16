@@ -175,7 +175,7 @@
         }
 
         .nav-container {
-            max-width: 1200px;
+            
             margin: 0 auto;
             display: flex;
             justify-content: space-between;
@@ -623,7 +623,17 @@
 				margin-bottom: 10px;
 				-webkit-text-fill-color: rgb(159, 159, 159);
 				text-transform: uppercase;
-		}
+			}
+
+			.item-title {
+				font-family: 'Orbitron', monospace;
+				font-size: 0.8rem;
+				
+				
+				-webkit-text-fill-color: rgb(159, 159, 159);
+				text-transform: uppercase;
+			}
+
 
         .features-container {
             display: grid;

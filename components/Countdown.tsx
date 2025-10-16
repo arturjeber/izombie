@@ -1,7 +1,8 @@
 "use client"; // necessário no Next.js 13+ se estiver em app directory
 import { time } from "console";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Orbitron, Rajdhani } from "next/font/google";
+import { useRouter } from "next/navigation";
 const rajdhani = Rajdhani({ subsets: ['latin'], weight: ['300','400','500','700'] })
 
 interface CountdownProps {
@@ -11,22 +12,46 @@ interface CountdownProps {
 export default function Countdown({ targetDate }: CountdownProps) {
   const [timeLeft, setTimeLeft] = useState<number>(0);
 
+	const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+	const router = useRouter();
 	const target = new Date(targetDate).getTime();
 	const now = new Date().getTime();
   const difference = target - now;
 
+	
   useEffect(() => {
-  
-    const interval = setInterval(() => {
-			
-			const now = new Date().getTime();
-			const difference = target - now;
-    
-      setTimeLeft(difference > 0 ? difference : 0);
-    }, 1000);
+		if (!targetDate) return;
+	
+		const target = new Date(targetDate).getTime();
+    const now = Date.now();
 
-    return () => clearInterval(interval);
-  }, [targetDate]);
+		if((target - now) < 0) return;
+		
+		if (!intervalRef.current) {
+			intervalRef.current = setInterval(() => {
+				const now = Date.now();
+				const difference = target - now;
+		
+				if (difference > 0) setTimeLeft(difference);	
+				else {
+					if (intervalRef.current != null) {
+						clearInterval(intervalRef.current);
+						intervalRef.current = null;
+						window.location.reload()
+					}
+				}
+			}, 1000);
+		}
+	
+		return () => {
+      if (intervalRef.current) {
+        clearInterval(intervalRef.current);
+        intervalRef.current = null;
+      }
+    };
+		// [] → executa apenas uma vez
+	}, []);
 
   // Converter milissegundos para dias, horas, minutos e segundos
   const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));

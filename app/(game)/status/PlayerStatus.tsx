@@ -5,12 +5,14 @@ import { UserBar } from "@/components/userbar";
 import { useSession } from "next-auth/react";
 import { useEffect, useMemo, useState } from "react";
 
-import { Kills } from "@/components/Kills";
 import { trpc } from "@/lib/trpcClient";
-import { getCurrentLocation, launchDate, msToHoursMinutes } from "@/lib/utils";
+import { launchDate, msToHoursMinutes } from "@/lib/utils";
 import { isGameOn } from "@/lib/utilsSurvivor";
 
 import Image from "next/image";
+import { start } from "repl";
+import { iso } from "zod";
+import { Backpack } from "@/components/Backpack";
 
 
 export const PlayerStatus = () => {
@@ -27,17 +29,22 @@ export const PlayerStatus = () => {
 
 	const { data: session, status } = useSession();
 
-	const isOn = useMemo(()=>isGameOn(),[])
+	const isOn = isGameOn()
 
 	const updateStatus = () => {
 		
 	}
-	const updateEnergy = () => {
-		setEnergy((p)=>{
-			if(p <= 0) { updateStatus(); return 0; }
-			updatePlayer.mutate({ energy: p });
-			return p <= 0 ? 0 : p-1
-		})
+	const updateEnergy = (lastCheck: Date) => {
+    const DURACAO_TOTAL_MS = 60 * 60 * 1000; // 1 hora em milissegundos
+		const diffs = new Date().getTime() - new Date(lastCheck).getTime();
+
+		let energy = Math.round((player?.energy || 0) - (diffs / DURACAO_TOTAL_MS) * 100);
+		// limitar entre 0 e 100
+    if (energy > 100) energy = 100;
+    if (energy < 0) energy = 0;
+		
+		updatePlayer.mutate({ energy });
+		setEnergy(energy);
 	}
 
 	const stringTimeLeft = () => {
@@ -47,7 +54,7 @@ export const PlayerStatus = () => {
 	}
 
 	const valorTimeLeft = () => {
-		return (timeLeftQrCode||0)*100/(1000*60*60*24)
+		return (timeLeftQrCode||1000*60*60*24)*100/(1000*60*60*24)
 	}
 	const stringEnergy = () => {
 		if(!isOn) return ""
@@ -69,31 +76,33 @@ export const PlayerStatus = () => {
 			</>
 		)
 	}
+
 	useEffect(() => {
-		
 		if(!player) return;
 		if(!isOn) return;
+		
 		setEnergy(player.energy)
 		
 		let lastCheck = new Date(launchDate);
-
 		if(player.lastPathId != null) lastCheck = player.paths[0].timestamp // colocar horario leitura qr code
 
-		console.log("gggggg", player, lastCheck, launchDate)
-
 		const startTime = 24 * 60 * 60 * 1000 - (new Date().getTime() - new Date(lastCheck).getTime())
+	
+		if(startTime < 0){
+			setTimeLeftQrCode(0)
+			updateEnergy(lastCheck)			
+		}
+		else setTimeLeftQrCode(startTime)
 		
-		setTimeLeftQrCode(startTime < 0 ? 0 : startTime);
-
+		
 		const timerTick = 1000 * 60; // 1 min
 		const timer = setInterval(() => {
 			setTimeLeftQrCode((prev) => {
-				if(prev == undefined) return 24 * 60 * 60 * 1000 - (new Date().getTime() - new Date(lastCheck).getTime())
+				if(prev == undefined) return startTime
  				if (prev <= 1) {
-					updateEnergy()
+					updateEnergy(lastCheck)
 					return 0;
 				}
-				console.log("tick")
 				return 24 * 60 * 60 * 1000 - (new Date().getTime() - new Date(lastCheck).getTime())
 			});
 		}, timerTick);
@@ -103,29 +112,11 @@ export const PlayerStatus = () => {
   }, [player]);
 
 	return(
-		<BoxBase superTitulo={getSuperTitulo()} titulo={session?.user?.name || "loading..."} status={player?.status}>			
+		<BoxBase superTitulo={getSuperTitulo()} titulo={session?.user?.name || "loading..."} kills={player?._count.mortes||null}>			
 			<UserBar  titulo={"Time left to scan"} valor={valorTimeLeft()} tituloRight={stringTimeLeft()}  st={"mb-5"} />
-			<UserBar titulo={"Energy"} valor={energy} vDecor={"%"} tituloRight={stringEnergy()} st={"mb-5"} />
-			<Kills kills={player?._count.mortes||0}/>
+			<UserBar titulo={"Energy"} valor={energy} vDecor={"%"} tituloRight={stringEnergy()} st={"mb-5"} />	
+			<Backpack itens={player?.backpack} limit={player?.limitItens||0}/>
 		</BoxBase>
 	)
 }
 
-/*
-<UserBar titulo={"Energy"} valor={92} tituloRight={stringEnergy()} st={"mb-5"} />
-				<UserBar titulo={"Energy"} valor={82} tituloRight={stringEnergy()} st={"mb-5"} />
-				<UserBar titulo={"Energy"} valor={72} tituloRight={stringEnergy()} st={"mb-5"} />
-				<UserBar titulo={"Energy"} valor={62} tituloRight={stringEnergy()} st={"mb-5"} />
-				<UserBar titulo={"Energy"} valor={52} tituloRight={stringEnergy()} st={"mb-5"} />
-				<UserBar titulo={"Energy"} valor={42} tituloRight={stringEnergy()} st={"mb-5"} />
-				<UserBar titulo={"Energy"} valor={32} tituloRight={stringEnergy()} st={"mb-5"} />
-				<UserBar titulo={"Energy"} valor={22} tituloRight={stringEnergy()} st={"mb-5"} />
-				<UserBar titulo={"Energy"} valor={12} tituloRight={stringEnergy()} st={"mb-5"} />
-				<UserBar titulo={"Energy"} valor={6} tituloRight={stringEnergy()} st={"mb-5"} />
-				<UserBar titulo={"Energy"} valor={5} tituloRight={stringEnergy()} st={"mb-5"} />
-				<UserBar titulo={"Energy"} valor={4} tituloRight={stringEnergy()} st={"mb-5"} />
-				<UserBar titulo={"Energy"} valor={3} tituloRight={stringEnergy()} st={"mb-5"} />
-				<UserBar titulo={"Energy"} valor={2} tituloRight={stringEnergy()} st={"mb-5"} />
-				<UserBar titulo={"Energy"} valor={1} tituloRight={stringEnergy()} st={"mb-5"} />
-				<UserBar titulo={"Energy"} valor={0} tituloRight={stringEnergy()} st={"mb-5"} />
-			*/

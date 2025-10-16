@@ -47,16 +47,16 @@ export const userRouter = createTRPCRouter({
       const player = await ctx.prisma.player.findUnique({
 				where: { userId },
 				include: {
+					backpack: true,
 					paths: {
 						orderBy: { timestamp: "desc" },
 						take: 1,
 						include: {
 							map: {
 								include: {
-									armas: true,          // 🔫 inclui armas do mapa
-									comunicados: true, // 📡 inclui comunicações
-									comidas: true,         // 🍞 inclui comida
-								}, // ← aqui traz o registro do mapa vinculado ao path
+									itens: {where: {quantity: {gt: 0}}},
+									messages: true,
+								},
 							},
 						}
 					},
@@ -67,7 +67,7 @@ export const userRouter = createTRPCRouter({
 			});
 			return player
     }),
-	openDoor: publicProcedure
+		openDoor: publicProcedure
 		.input(z.object({ 
 			latitude: z.number(),
 			longitude: z.number(),
@@ -103,5 +103,195 @@ export const userRouter = createTRPCRouter({
     return result;
 		}),
       
-    
+		eat: publicProcedure
+		.input(z.object({ 
+			id: z.number(),
+		}))
+    .mutation(async ({ ctx, input }) => {
+			const item = await ctx.prisma.mapItens.findUnique({ where: { id: input.id } });
+			if (!item) throw new Error("Item não encontrado");
+			if (item.quantity <= 0) throw new Error("Item sem quantidade disponível");
+			
+			const itemAtualizado = await ctx.prisma.mapItens.update({
+				where: { id: input.id },
+				data: {
+					quantity : {
+						decrement: 1, // diminui em 1 unidade
+					},
+				},
+			});
+
+			let energyValue = 0;
+			try {
+				const efeitoData = JSON.parse(item.effect);
+				
+				if (efeitoData.energy) energyValue = Number(efeitoData.energy);
+			} catch (err) {
+				console.error("Erro ao ler efeito:", err);
+			}
+
+			const player = await ctx.prisma.player.findUnique({
+				where: { userId: ctx.session?.user.id },
+				select: { energy: true },
+			});
+			if (!player) throw new Error("PLayer not found");
+
+			const novaEnergia = Math.min(100, player.energy + energyValue);
+
+			await ctx.prisma.player.update({
+				where: { userId: ctx.session?.user.id },
+				data: { energy: novaEnergia },
+			});
+
+			return {
+				item: itemAtualizado,
+				energiaGanha: energyValue,
+				energiaFinal: novaEnergia,
+			};
+		}),
+		getItem: publicProcedure
+			.input(z.object({ id: z.number() }))
+    	.mutation(async ({ ctx, input }) => {
+			
+				const item = await ctx.prisma.mapItens.findUnique({ where: { id: input.id } });
+				if (!item) throw new Error("Item não encontrado");
+				if (item.quantity <= 0) throw new Error("Item sem quantidade disponível");
+				
+				// 3️⃣ Busca o player
+				const player = await ctx.prisma.player.findUnique({
+					where: { userId: ctx.session?.user.id },
+					select: { id: true, limitItens: true },
+				});
+				if (!player) throw new Error("Player não encontrado");
+
+				// 3️⃣ Calcula o espaço já ocupado na backpack
+				const inventario = await ctx.prisma.itens.findMany({
+					where: { playerId: player.id },
+					select: { size: true, quantity: true },
+				});
+
+				const espacoOcupado = inventario.reduce(
+					(acc, i) => acc + i.size * i.quantity,
+					0
+				);
+
+				const espacoDisponivel = player.limitItens - espacoOcupado;
+
+				if (espacoDisponivel < item.size) {
+					throw new Error("Espaço insuficiente na mochila");
+				}
+
+
+			const itemAtualizado = await ctx.prisma.mapItens.update({
+				where: { id: input.id },
+				data: {
+					quantity : {
+						decrement: 1, // diminui em 1 unidade
+					},
+				},
+			});
+
+		
+			// 4️⃣ Verifica se o item já existe no inventário
+			const itemInventario = await ctx.prisma.itens.findFirst({
+				where: {
+					playerId: player.id,
+					name: item.name,
+				},
+			});
+
+			if (itemInventario) {
+				// 5️⃣ Incrementa a quantidade se já existir
+				await ctx.prisma.itens.update({
+					where: { id: itemInventario.id },
+					data: { quantity: { increment: 1 } },
+				});
+			} else {
+				// 6️⃣ Cria novo item se não existir
+				await ctx.prisma.itens.create({
+					data: {
+						playerId: player.id,
+						name: item.name,
+						size: item.size,
+						kind: item.kind,
+						effect: item.effect, // opcional
+						quantity: 1,
+					},
+				});
+			}
+
+			// 7️⃣ Retorna resultado
+			return {
+				mensagem: `Item ${item.name} adicionado ao inventário`,
+				itemMapa: itemAtualizado,
+			};
+
+			
+		}),	
+		dropItem: publicProcedure
+		.input(z.object({ id: z.number() }))
+		.mutation(async ({ ctx, input }) => {
+			// 1️⃣ Busca o player
+			const player = await ctx.prisma.player.findUnique({
+				where: { userId: ctx.session?.user.id },
+				select: { id: true },
+			});
+			if (!player) throw new Error("Player não encontrado");
+
+			// 2️⃣ Busca o item no inventário do player
+			const itemInventario = await ctx.prisma.itens.findFirst({
+				where: {
+					playerId: player.id,
+					id: input.id,
+				},
+			});
+			if (!itemInventario) throw new Error("Item não encontrado no inventário");
+			if (itemInventario.quantity <= 0) throw new Error("Item sem quantidade disponível");
+
+			// 3️⃣ Diminui 1 unidade do item no inventário do player
+			const itemAtualizadoInventario = await ctx.prisma.itens.update({
+				where: { id: itemInventario.id },
+				data: { quantity: { decrement: 1 } },
+			});
+
+			// 4️⃣ Busca a última localização do player (mapa)
+			const ultimaLocalizacao = await ctx.prisma.path.findFirst({
+				where: { playerId: player.id },
+				orderBy: { timestamp: "desc" },
+				select: { mapId: true },
+			});
+			if (!ultimaLocalizacao) throw new Error("Última localização não encontrada");
+
+			// 5️⃣ Adiciona o item na localização correspondente do mapa
+			const itemMapa = await ctx.prisma.mapItens.findFirst({
+				where: {
+					mapId: ultimaLocalizacao.mapId,
+					name: itemInventario.name,
+				},
+			});
+
+			if (itemMapa) {
+				// Incrementa quantidade se já existir
+				await ctx.prisma.mapItens.update({
+					where: { id: itemMapa.id },
+					data: { quantity: { increment: 1 } },
+				});
+			} else {
+				// Cria novo item no mapa
+				await ctx.prisma.mapItens.create({
+					data: {
+						mapId: ultimaLocalizacao.mapId,
+						name: itemInventario.name,
+						size: itemInventario.size,
+						effect: itemInventario.effect,
+						quantity: 1,
+					},
+				});
+			}
+
+			return {
+				mensagem: `Item ${itemInventario.name} dropado na última localização`,
+				itemInventario: itemAtualizadoInventario,
+			};
+		})
 });

@@ -8,9 +8,8 @@ const { auth } = NextAuth(authConfig)
 export default auth(async function middleware(req: NextRequest & { auth?: any }) {
   const path = req.nextUrl.pathname
 	const session = await auth(); // ← obtém a sessão do usuário
-
+	
   const email = req.cookies.get("pendingEmail")?.value;
-
 
 	if(session && 
 		(

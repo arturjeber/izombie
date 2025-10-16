@@ -110,7 +110,6 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
 				if (!email) throw new Error("Email é obrigatório");
 
 				const code = Math.floor(100000 + Math.random() * 900000).toString();
-				console.log("COOOOOOO", code)
 
 				await prisma.verificationToken.create({
           data: {
@@ -166,7 +165,9 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         });
 
         if (!dbUser || dbUser.tokenVersion !== token.tokenVersion) {
-          throw new Error("Sessão inválida");
+					token.error = "InvalidSession";
+					return token;
+          //throw new Error("Sessão inválida");
         }
 
         token.accessToken = randomUUID();
@@ -177,6 +178,10 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     },
 
     async session({ session, token }): Promise<Session> {
+			if (token?.error === "InvalidSession") {
+				session.error = "InvalidSession";
+			}
+			
       // Retorna um objeto literal tipado para evitar problemas de TS
       return {
         user: {
@@ -191,6 +196,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         accessTokenExpires: token.accessTokenExpires as number,
         refreshToken: token.refreshToken as string,
         expires: session.expires,
+				error: token?.error === "InvalidSession" ? "InvalidSession": null
       };
     },
   },

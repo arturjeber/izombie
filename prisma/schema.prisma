@@ -57,23 +57,21 @@ model MessagesHome {
 }
 
 model Player {
-  id               Int        @id @default(autoincrement())
-  status           Int        @default(0) // 0 -> Survivor, 1 -> Zombie , 2 -> Observador
-  limiteMochila    Int        @default(2)  
-  limiteArmas      Int        @default(2)
-	energy 					 Int				@default(100)
+  id               	Int        @id @default(autoincrement())
+  status           	Int        @default(0) // 0 -> Survivor, 1 -> Zombie , 2 -> Observador
+  limitItens	    	Int        @default(4)  
+	energy 					 	Int				@default(100)
 	
-	lastPathId       Int?        @unique // último Path
-  lastPath         Path?       @relation("LastPath", fields: [lastPathId], references: [id])
+	lastPathId       	Int?        @unique // último Path
+  lastPath         	Path?       @relation("LastPath", fields: [lastPathId], references: [id])
 
-	userId           String      @unique  // garante relação 1:1
-	user             User        @relation(fields: [userId], references: [id])
+	userId           	String      @unique  // garante relação 1:1
+	user             	User        @relation(fields: [userId], references: [id])
 
-	itensMochila     Itens[]
-  itensArmas       Armas[]
-  vitimasRecebidas Kill[]      @relation("Vitima")
-  mortes           Kill[]      @relation("Matador")
-  paths            Path[]      @relation("PlayerPath") // todas as leituras de Path
+	backpack     		 	Itens[]
+  vitimasRecebidas 	Kill[]      @relation("Vitima")
+  mortes           	Kill[]      @relation("Matador")
+  paths            	Path[]      @relation("PlayerPath") // todas as leituras de Path
   
   
   @@index([status])
@@ -81,24 +79,15 @@ model Player {
 }
 
 model Itens {
-  id       	Int    @id @default(autoincrement())
-  tamanho  	Int
-	nome			String
-	descricao String
-	efeito		String
-  player  	Player @relation(fields: [playerId], references: [id])
-  playerId Int
-}
-
-model Armas {
-  id         Int     @id @default(autoincrement())
-	name			 		String
-	description  	String
-	size    			Int
-  quantity 			Int     @default(1)
-  efficiency 		Float
-  player     Player  @relation(fields: [playerId], references: [id])
-  playerId   Int
+  id       			Int    			@id @default(autoincrement())
+	name					String
+	description  	String?
+  size  				Int
+  quantity  		Int 				@default(1)
+	kind					Int					@default(0)
+	effect				String
+  player  			Player @relation(fields: [playerId], references: [id])
+  playerId 			Int
 }
 
 model Kill {
@@ -132,46 +121,34 @@ model Path {
 }
 
 model Map {
-  id          Int              @id @default(autoincrement())
-  latitude    Float
-  longitude   Float
-  accuracy    Float
-  name        String
-  description String?
-  armas       MapArma[]
-  comidas     MapItens[]
-  comunicados MapComunicado[]
-	status      Int        @default(0) //0 -> public,  1 -> hidden ( se torna publico na primeira leitura) 2 -> secreto ( sempre hidden)
-
-
-
-  path   			Path[] 							@relation("PathMap") // relacionamento 1:1
-}
-
-model MapArma {
-  id         		Int     @id @default(autoincrement())
-  map        		Map     @relation(fields: [mapId], references: [id])
-  mapId     		Int
-	name			 		String
-	description  	String
-	size    			Int
-  quantity 			Int     @default(1)
-  efficiency 		Float
+  id          		Int              		@id @default(autoincrement())
+  latitude    		Float
+  longitude   		Float
+  accuracy    		Float
+  name        		String
+  description 		String?
+	status      		Int        					@default(0) //0 -> public,  1 -> hidden ( se torna publico na primeira leitura) 2 -> secreto ( sempre hidden)
+  itens    	 			MapItens[]
+  messages 				MapMessages[]
+  path   					Path[] 							@relation("PathMap") // relacionamento 1:1
 }
 
 model MapItens {
-  id        Int     @id @default(autoincrement())
-  map       Map     @relation(fields: [mapId], references: [id])
-  mapId     Int
-  comida    String
-  quantidade Int    @default(1)
-  efeito   	String
+  id        			Int     	@id @default(autoincrement())
+  name      			String
+	description   	String?
+	size      			Int 			@default(1)
+  quantity	 			Int   		@default(1)
+	kind					  Int				@default(0) //eat
+  effect   				String
+	map       			Map     	@relation(fields: [mapId], references: [id])
+  mapId     			Int
 }
 
-model MapComunicado {
-  id       Int     @id @default(autoincrement())
-  map      Map     @relation(fields: [mapId], references: [id])
-  mapId    Int
-  mensagem String
-  criadoEm DateTime @default(now())
+model MapMessages {
+  id       		Int     		@id @default(autoincrement())
+  map      		Map     		@relation(fields: [mapId], references: [id])
+  mapId    		Int
+  message 		String
+  criadoEm 		DateTime 		@default(now())
 }
