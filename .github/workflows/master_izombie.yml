@@ -16,21 +16,35 @@ jobs:
       contents: read  # Necessário para actions/checkout
     env:
       DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+      NEXTAUTH_URL: https://izombie.azurewebsites.net
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
       - name: Set up Node.js
-        uses: actions/setup-node@v3
+        uses: actions/setup-node@v4
         with:
           node-version: '18.x'
 
-      - name: Install dependencies, build and test
-        run: |
-          npm install --legacy-peer-deps
-          npm run build --if-present
-          npm run test --if-present
+      - name: Install dependencies
+        run: npm install --legacy-peer-deps
+
+      - name: Generate Prisma client
+        run: npx prisma generate
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Build Next.js app
+        run: npm run build --if-present
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+
+      - name: Run tests
+        run: npm run test --if-present
+        env:
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: Upload artifact for deployment
         uses: actions/upload-artifact@v4
@@ -70,4 +84,3 @@ jobs:
           app-name: 'izombie'
           slot-name: 'Production'
           package: .
-
