@@ -14,6 +14,8 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read  # Necessário para actions/checkout
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
     steps:
       - name: Checkout code
@@ -68,3 +70,4 @@ jobs:
           app-name: 'izombie'
           slot-name: 'Production'
           package: .
+
