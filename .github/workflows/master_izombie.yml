@@ -12,6 +12,11 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+    
+    env:
+      DATABASE_URL: ${{ secrets.DATABASE_URL }}
+      NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+    
     permissions:
       contents: read  # Necessário para actions/checkout
     env:

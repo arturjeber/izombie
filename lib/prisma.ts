@@ -1,15 +1,13 @@
-// lib/prisma.ts
-import { PrismaClient } from "@prisma/client";
+import { PrismaClient } from '@prisma/client'
 
-// Evita múltiplas instâncias do Prisma Client no ambiente de desenvolvimento
-// https://pris.ly/d/help/next-js-best-practices
-
-const globalForPrisma = global as unknown as { prisma: PrismaClient };
+declare global {
+  var prisma: PrismaClient | undefined
+}
 
 export const prisma =
-  globalForPrisma.prisma ||
+  globalThis.prisma ??
   new PrismaClient({
-    log: ["query", "error", "warn"],
-  });
+    log: ['query'],
+  })
 
-if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+if (process.env.NODE_ENV !== 'production') globalThis.prisma = prisma
