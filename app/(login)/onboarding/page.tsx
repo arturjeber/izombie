@@ -1,11 +1,9 @@
 "use client"
 
-import { useRegister } from "@/schemas/auth";
 import Countdown10 from "@/components/Countdown10";
-import { signIn, useSession } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useMemo, useState } from "react";
-import { trpc } from "@/lib/trpcClient";
 
 
 export default function LoginPage() {
@@ -14,10 +12,11 @@ export default function LoginPage() {
 
   const router = useRouter()
 
-	const email = localStorage.getItem("pendingEmail")
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
+		const email = localStorage.getItem("pendingEmail")
+
 		const form = e.currentTarget;
 		const formData = new FormData(form);
 		const data = {
@@ -48,6 +47,8 @@ export default function LoginPage() {
 
 	const newCode = async()=>{
 		if(loading) return;
+		const email = localStorage.getItem("pendingEmail")
+
 		setLoading(true)
 		signIn("email-custom", {email, redirect: false})
 	}
