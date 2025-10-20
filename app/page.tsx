@@ -6,6 +6,7 @@ import { Orbitron, Rajdhani } from "next/font/google";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { launchDate } from "@/lib/utils";
+import { trpc } from "@/lib/trpcClient";
 
 const orbitron = Orbitron({ subsets: ['latin'], weight: ['400','700','900'] })
 const rajdhani = Rajdhani({ subsets: ['latin'], weight: ['300','400','500','700'] })
@@ -34,20 +35,22 @@ export default function HomePage() {
   const [activeTab, setActiveTab] = useState("origin")
   const [messageSent, setMessageSent] = useState(false);
 
-	const { mutate: sendMsg } = useCreateMessage();
+	const sendMsg  =  trpc.message.create.useMutation();
+	
+
 	
 	const submitMessage = async (e: React.FormEvent<HTMLFormElement>) => {
 		e.preventDefault();
 		const form = e.currentTarget;
 		const formData = new FormData(form);
 		const data = {
-			name: formData.get("name"),
-			email: formData.get("email"),
-			message: formData.get("message"),
+			name: formData.get("name") as string,
+			email: formData.get("email") as string,
+			message: formData.get("message") as string,
 		};
 
 		try {
-			sendMsg(data as { name: string; email: string; message: string; },
+			sendMsg.mutateAsync({name: data.name, email: data.email, message: data.message},
 				{onSuccess: () => {
 					setMessageSent(true)
 					form.reset()
