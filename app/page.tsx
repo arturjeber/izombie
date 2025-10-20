@@ -1,7 +1,6 @@
 "use client"
 
 import Countdown from "@/components/Countdown";
-import { useCreateMessage } from "@/schemas/message";
 import { Orbitron, Rajdhani } from "next/font/google";
 import Image from "next/image";
 import { useEffect, useState } from "react";
