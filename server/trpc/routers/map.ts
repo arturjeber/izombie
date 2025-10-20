@@ -1,7 +1,6 @@
+import { isGameOn } from "@/lib/utilsSurvivor";
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "../trpc";
-import { getAllByAltText } from "@testing-library/react";
-import { isGameOn } from "@/lib/utilsSurvivor";
 
 export const mapRouter = createTRPCRouter({
 
