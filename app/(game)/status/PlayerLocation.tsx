@@ -21,7 +21,6 @@ export const PlayerLocation = () => {
 	const location = player?.paths?.[0]?.map
 
 	const {data: localPlayers } = trpc.map.getAllUsersByLocation.useQuery({id: (location?.id || 0)})
-
 	
 	const isOn = useMemo(()=>isGameOn(),[])
 	
@@ -35,7 +34,7 @@ export const PlayerLocation = () => {
 		<BoxBase titulo={getTitulo()} superTitulo={"current locatoin"}>
 			{!isOn && <Countdown targetDate={launchDate}/>}
 			<ListaItensMapa location={location} />
-			<div className="mt-4 text-xl text-gray-300">Local radio <span className="text-base">{!!localPlayers && `listeners: ${localPlayers}`}</span></div>
+			<div className="mt-4 text-xl text-gray-300">Local radio <span className="text-base float-end mt-1">{!!localPlayers && `${localPlayers} listeners`}</span></div>
 			<span className="text-base"> {!localPlayers && "Not avaible"}</span>
 			{!!localPlayers && <RadioLocal estacao={location?.name as string}/>}
 			

@@ -900,7 +900,8 @@
         }
 
         .form-group input,
-        .form-group textarea {
+        .form-group textarea,
+				.chatInput {
             width: 100%;
             padding: 15px;
             background: rgba(255, 255, 255, 0.05);
@@ -913,7 +914,8 @@
         }
 
         .form-group input:focus,
-        .form-group textarea:focus {
+        .form-group textarea:focus,
+				.chatInput:focus {
             outline: none;
             border-color: #FF5E00;
             box-shadow: 0 0 20px rgba(255, 94, 0, 0.3);

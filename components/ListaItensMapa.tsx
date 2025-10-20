@@ -44,7 +44,7 @@ export const ListaItensMapa = ({location}: {location: any}) => {
 				itens?.filter((a:any) => a.quantity > 0).sort(ordemItens).map((a: any, i: number)=>{ 
 					return (
 					<div key={i} className="mb-2">
-						<span className="item-title"> # {a?.name} ---- {a.quantity} </span>
+						<span className="item-title"> # {a?.name} ___ {a.quantity} </span>
 						
 						<button onClick={()=>getItem(a.id)} className="cta-button2 cta-secondary ml-3">get</button>
 						{a.kind == 0 && <button onClick={()=>eatItem(a.id)} className="cta-button2 cta-secondary">eat</button>}

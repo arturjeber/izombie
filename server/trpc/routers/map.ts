@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { createTRPCRouter, publicProcedure } from "../trpc";
 import { getAllByAltText } from "@testing-library/react";
+import { isGameOn } from "@/lib/utilsSurvivor";
 
 export const mapRouter = createTRPCRouter({
 
@@ -21,7 +22,24 @@ export const mapRouter = createTRPCRouter({
 				},
 				include: {messages: true,},
 			 });
-			return points;
+
+			 // Filtro circular real (~100 m)
+			 const R = 6371e3; // raio da Terra em metros
+			 const toRad = (v: number) => (v * Math.PI) / 180;
+	 
+			 const result = points.filter(p => {
+				 const dLat = toRad(p.latitude - input.lat);
+				 const dLon = toRad(p.longitude - input.long);
+				 const a =
+					 Math.sin(dLat / 2) ** 2 +
+					 Math.cos(toRad(input.lat)) * Math.cos(toRad(p.latitude)) *
+					 Math.sin(dLon / 2) ** 2;
+				 const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+				 const distance = R * c;
+				 return distance <= 100; // 🔥 apenas pontos até 100m
+			 });
+	 
+			 return result;
 		}),
 	
 	getLocation: publicProcedure
@@ -30,11 +48,6 @@ export const mapRouter = createTRPCRouter({
 			return await ctx.prisma.map.findUnique({ 
 				where: { id: input.id },
 				include: {
-					weapons: {
-						where: {
-							quantity: { gt: 0 }, // apenas armas com quantidade > 0
-						},
-					},
 					itens: {
 						where: {
 							quantity: { gt: 0 }, // apenas armas com quantidade > 0
@@ -47,15 +60,29 @@ export const mapRouter = createTRPCRouter({
 
 	getAllByUser: publicProcedure
 		.query(async ({ ctx, input }) => {
+			// 1️⃣ Busca o player atual
+			const player = await ctx.prisma.player.findUnique({
+				where: { userId: ctx.session?.user.id },
+				select: { id: true },
+			});
+	
+			if (!player) throw new Error("Jogador não encontrado.");
+
 			const pontos = await ctx.prisma.map.findMany({
 				where: {
 					OR: [
-						{ status: 0 }, // pontos públicos
-						{ path: { some: {} } }, // pontos que têm pelo menos 1 path
+						{ status: 0 },               // pontos públicos
+						{ path: { some: {} } },      // pontos que têm pelo menos 1 path
+						{                             // pontos do player atual com status 1
+							AND: [
+								{ playerId: player.id},
+								{ status: 1 },
+							],
+						},
 					],
 				},
 				include: {
-					path: true, // se quiser trazer os paths relacionados
+					path: true, // trazer os paths relacionados
 				},
 			});
 	
@@ -140,5 +167,97 @@ export const mapRouter = createTRPCRouter({
 			});
 
 		}),
+	createBunker: publicProcedure
+		.input(z.object({
+			name: z.string(),
+			description: z.string().optional(),
+			latitude: z.number(),
+			longitude: z.number(),
+		}))
+		.mutation(async ({ ctx, input }) => {
+			// 1️⃣ Busca o player atual
+			const player = await ctx.prisma.player.findUnique({
+				where: { userId: ctx.session?.user.id },
+				select: { id: true },
+			});
+	
+			if (!player) throw new Error("Jogador não encontrado.");
+	
+			// 2️⃣ Define margem aproximada (300 m ≈ 0.0027°)
+			const margin = 0.0027;
+	
+			// 3️⃣ Busca locais próximos dentro da caixa (margem)
+			const nearby = await ctx.prisma.map.findMany({
+				where: {
+					latitude: {
+						gte: input.latitude - margin,
+						lte: input.latitude + margin,
+					},
+					longitude: {
+						gte: input.longitude - margin,
+						lte: input.longitude + margin,
+					},
+				},
+				select: {
+					id: true,
+					latitude: true,
+					longitude: true,
+				},
+			});
+	
+			// 4️⃣ Calcula distância real (Haversine)
+			const R = 6371e3; // raio da Terra (m)
+			const toRad = (v: number) => (v * Math.PI) / 180;
+	
+			const tooClose = nearby.some(p => {
+				const dLat = toRad(p.latitude - input.latitude);
+				const dLon = toRad(p.longitude - input.longitude);
+				const a =
+					Math.sin(dLat / 2) ** 2 +
+					Math.cos(toRad(input.latitude)) *
+					Math.cos(toRad(p.latitude)) *
+					Math.sin(dLon / 2) ** 2;
+				const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+				const distance = R * c;
+				return distance <= 300; // 🚫 dentro do raio de 300 m
+			});
+	
+			if (tooClose) {
+				return null; // ❌ bunker muito próximo
+			}
+	
+			// 5️⃣ Cria o bunker
+			const bunker = await ctx.prisma.map.create({
+				data: {
+					name: input.name,
+					description: input.description,
+					accuracy: 50,
+					latitude: input.latitude,
+					longitude: input.longitude,
+					status: 1,
+					playerId: player.id,
+				},
+			});
+	
+			if(isGameOn())
+			// 6️⃣ Faz o check-in automático
+			await ctx.prisma.path.create({
+				data: {
+					latitude: input.latitude,
+          longitude: input.longitude,
+          accuracy: 50,
+          timestamp: new Date(),
+          playerId: player.id,
+        	mapId: bunker.id,
+					lastPathOf: {
+						connect: { id: player.id },
+					},
+				},
+			});
+	
+			return bunker;
+		})
+	
+
 
 });

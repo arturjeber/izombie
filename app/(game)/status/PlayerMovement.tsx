@@ -49,8 +49,10 @@ export const PlayerMoviment = () => {
 	}
 
 	const newLocation = async (qrInfo: string) => {
+		console.log("jkjdakja", qrInfo)
 		const location = await getCurrentLocation();
 		const t = await map.mutateAsync({lat: location.latitude, long: location.longitude})
+		console.log("lll",t)
 		if(t){
 			setMovePlayerTo(t[0])
 			setTitulo(t[0]?.name)
@@ -59,6 +61,9 @@ export const PlayerMoviment = () => {
 		}
 	}
 
+	const teste = () => {
+		console.log("oi")
+	}
 
 	
 	useEffect(() => {
@@ -73,6 +78,7 @@ export const PlayerMoviment = () => {
 
 	return(
 		<BoxBase titulo={loading ? "loading": movePlayerTo?.name ?? "Go to"} superTitulo={"move to another place"}>
+			<button type="button" onClick={teste} className="cta-primary btn-primary">teste</button>
 			{loading ? "" : movePlayerTo ? <QrCodeDoor location={movePlayerTo} enter={enterDoor} cancel={cancelMove}/> :
 				<QRCameraScanner onScanResult={newLocation}/>
 			}

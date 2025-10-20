@@ -35,14 +35,21 @@ export const PlayerStatus = () => {
 		
 	}
 	const updateEnergy = (lastCheck: Date) => {
+		
     const DURACAO_TOTAL_MS = 60 * 60 * 1000; // 1 hora em milissegundos
-		const diffs = new Date().getTime() - new Date(lastCheck).getTime();
-
-		let energy = Math.round((player?.energy || 0) - (diffs / DURACAO_TOTAL_MS) * 100);
+		
+		const diffs =  DURACAO_TOTAL_MS - (
+			new Date().getTime() 
+			- new Date(lastCheck).getTime() 
+			- 24 * DURACAO_TOTAL_MS
+		)
+		
+		let energy = Math.round((diffs / DURACAO_TOTAL_MS) * 100);
+		
 		// limitar entre 0 e 100
     if (energy > 100) energy = 100;
     if (energy < 0) energy = 0;
-		
+
 		updatePlayer.mutate({ energy });
 		setEnergy(energy);
 	}
@@ -78,6 +85,7 @@ export const PlayerStatus = () => {
 	}
 
 	useEffect(() => {
+		console.log("play",player)
 		if(!player) return;
 		if(!isOn) return;
 		
@@ -95,13 +103,14 @@ export const PlayerStatus = () => {
 		else setTimeLeftQrCode(startTime)
 		
 		
-		const timerTick = 1000 * 60; // 1 min
+		const timerTick = 1000 // * 60; // 1 min
 		const timer = setInterval(() => {
 			setTimeLeftQrCode((prev) => {
+				console.log("PREV", prev)
 				if(prev == undefined) return startTime
- 				if (prev <= 1) {
+ 				if (prev < 1000 * 60 ) {
 					updateEnergy(lastCheck)
-					return 0;
+					return 1;
 				}
 				return 24 * 60 * 60 * 1000 - (new Date().getTime() - new Date(lastCheck).getTime())
 			});

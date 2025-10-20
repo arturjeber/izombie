@@ -1,11 +1,10 @@
 import { launchDate } from "./utils";
-import { msToHoursMinutes } from "./utils";
 
 export const isGameOn = () => {
 	const diffStart = new Date().getTime() - new Date(launchDate).getTime()
-	if(diffStart < 0) return null;
+	if(diffStart < 0) return false;
 
-	return diffStart;
+	return true;
 }
 
 export const timeLeftQrCode = (player: any) => {

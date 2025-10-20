@@ -10,6 +10,8 @@ import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import RadioPublic from "./RadioPublic";
 import { MapaPublic } from "./MapaPublic";
+import { PlayerBunker } from "./PlayerBunker";
+
 
 
 export default function StatusPage() {
@@ -21,6 +23,7 @@ export default function StatusPage() {
 			{isGameOn() && <PlayerMoviment />}
 			<RadioPublic />
 			<MapaPublic />
+			<PlayerBunker />
 		</div>
 
 		

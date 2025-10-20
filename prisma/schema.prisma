@@ -72,7 +72,8 @@ model Player {
   vitimasRecebidas 	Kill[]      @relation("Vitima")
   mortes           	Kill[]      @relation("Matador")
   paths            	Path[]      @relation("PlayerPath") // todas as leituras de Path
-  
+  bunkers      			Map[]   		// ← relação 1:N (um player pode criar vários mapas)
+ 	scans							QrRead[]
   
   @@index([status])
   @@index([status, id])
@@ -131,6 +132,9 @@ model Map {
   itens    	 			MapItens[]
   messages 				MapMessages[]
   path   					Path[] 							@relation("PathMap") // relacionamento 1:1
+	
+	playerId      	Int?
+  player       	 	Player?		          @relation(fields: [playerId], references: [id])		
 }
 
 model MapItens {
@@ -151,4 +155,16 @@ model MapMessages {
   mapId    		Int
   message 		String
   criadoEm 		DateTime 		@default(now())
+}
+
+model QrRead {
+	id       				Int     				@id @default(autoincrement())
+	info 						String 
+	latitude				Float 
+	longitude				Float
+	accuracy				Float
+	timestamp				Float
+	
+	playerId      	Int?
+  player       	 	Player?		    	@relation(fields: [playerId], references: [id])		
 }

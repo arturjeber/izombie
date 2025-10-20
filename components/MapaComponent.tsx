@@ -37,6 +37,7 @@ export default function MapaComponent({
       iconUrl,
       shadowUrl,
     });
+		
   }, []);
 
   if (!isClient) return null;
@@ -50,7 +51,7 @@ export default function MapaComponent({
         />
         {pontos.map((ponto, idx) => (
           <Marker key={idx} position={[ponto.latitude, ponto.longitude]}>
-            <Popup>{ponto.name || 'Local sem nome'}</Popup>
+            <Popup>{ponto.name || 'No name'}</Popup>
           </Marker>
         ))}
       </MapContainer>
