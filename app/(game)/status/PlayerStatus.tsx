@@ -3,16 +3,14 @@
 import { BoxBase } from '@/components/boxbase';
 import { UserBar } from '@/components/userbar';
 import { useSession } from 'next-auth/react';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useState } from 'react';
 
 import { trpc } from '@/lib/trpcClient';
 import { launchDate, msToHoursMinutes } from '@/lib/utils';
 import { isGameOn } from '@/lib/utilsSurvivor';
 
-import Image from 'next/image';
-import { start } from 'repl';
-import { iso } from 'zod';
 import { Backpack } from '@/components/Backpack';
+import Image from 'next/image';
 
 export const PlayerStatus = () => {
   const [error, setError] = useState('');

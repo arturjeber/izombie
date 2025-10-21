@@ -1,14 +1,11 @@
 'use client';
 
 import { BoxBase } from '@/components/boxbase';
-import { useSession } from 'next-auth/react';
-import { useEffect, useMemo, useState } from 'react';
 import QRCameraScanner from '@/components/qrReader';
 import { trpc } from '@/lib/trpcClient';
 import { getCurrentLocation } from '@/lib/utils';
-import { isGameOn } from '@/lib/utilsSurvivor';
-import { PlayerStatus } from './PlayerStatus';
-import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+import { useEffect, useState } from 'react';
 
 export const PlayerMoviment = () => {
   const [loading, setLoading] = useState<boolean>(true);

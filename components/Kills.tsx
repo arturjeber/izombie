@@ -1,5 +1,3 @@
-import { useEffect } from 'react';
-
 export const Kills = ({ kills }: { kills: number }) => {
   return (
     <div className={`w-full`}>

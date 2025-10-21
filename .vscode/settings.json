@@ -1,0 +1,12 @@
+{
+  // ⚡️ ESLint + Prettier automáticos
+  "editor.formatOnSave": true,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.eslint": true, // aplica ESLint fixes
+    "source.organizeImports": true // organiza/removes imports não usados
+  },
+
+  // ⚙️ Formatação padrão
+  "eslint.validate": ["javascript", "typescript", "typescriptreact", "javascriptreact"],
+  "prettier.requireConfig": true // só formata se houver .prettierrc/eslint-config
+}

@@ -1,20 +1,11 @@
 'use client';
 
 import { BoxBase } from '@/components/boxbase';
-import { UserBar } from '@/components/userbar';
-import { useSession } from 'next-auth/react';
-import { useEffect, useMemo, useState } from 'react';
+import { useState } from 'react';
 
-import { Kills } from '@/components/Kills';
 import { trpc } from '@/lib/trpcClient';
-import { getCurrentLocation, launchDate, msToHoursMinutes } from '@/lib/utils';
-import { isGameOn } from '@/lib/utilsSurvivor';
-import { useRouter } from 'next/navigation';
-import RadioLocal from '@/components/RadioLocal';
-import { ListaItensMapa } from '@/components/ListaItensMapa';
-import Countdown from '@/components/Countdown';
+import { getCurrentLocation } from '@/lib/utils';
 import dynamic from 'next/dynamic';
-import { util } from 'zod';
 
 export const PlayerBunker = () => {
   const [pontos, setPontos] = useState<any>([]);

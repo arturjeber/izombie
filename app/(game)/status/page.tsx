@@ -5,11 +5,9 @@ import { PlayerLocation } from './PlayerLocation';
 import { PlayerMoviment } from './PlayerMovement';
 import { PlayerStatus } from './PlayerStatus';
 
-import { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
-import RadioPublic from './RadioPublic';
 import { MapaPublic } from './MapaPublic';
 import { PlayerBunker } from './PlayerBunker';
+import RadioPublic from './RadioPublic';
 
 export default function StatusPage() {
   return (

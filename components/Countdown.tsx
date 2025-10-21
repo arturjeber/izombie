@@ -1,8 +1,7 @@
 'use client'; // necessário no Next.js 13+ se estiver em app directory
-import { time } from 'console';
-import { useEffect, useRef, useState } from 'react';
-import { Orbitron, Rajdhani } from 'next/font/google';
+import { Rajdhani } from 'next/font/google';
 import { useRouter } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react';
 const rajdhani = Rajdhani({ subsets: ['latin'], weight: ['300', '400', '500', '700'] });
 
 interface CountdownProps {

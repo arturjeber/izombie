@@ -1,7 +1,6 @@
 'use client';
 
 import { BoxBase } from '@/components/boxbase';
-import MapaComponent from '@/components/MapaComponent';
 import dynamic from 'next/dynamic';
 
 import { trpc } from '@/lib/trpcClient';
