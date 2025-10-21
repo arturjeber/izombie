@@ -30,6 +30,9 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
+      - name: Check DATABASE_URL
+        run: echo $DATABASE_URL
+
       - name: Build Next.js app
         run: npm run build --if-present
         # ❌ NÃO passar DATABASE_URL aqui
