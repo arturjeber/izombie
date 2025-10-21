@@ -22,6 +22,10 @@ jobs:
         with:
           node-version: '18.x'
 
+      - name: Limpar cache do Next.js
+        run: |
+          rm -rf .next
+
       - name: Install dependencies
         run: npm install --legacy-peer-deps
 
