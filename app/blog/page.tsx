@@ -1,4 +1,4 @@
-export const dynamic = "force-static"; // garante que seja estática
+export const dynamic = 'force-static'; // garante que seja estática
 
 export default function AboutPage() {
   return (

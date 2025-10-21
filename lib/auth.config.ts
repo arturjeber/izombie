@@ -1,26 +1,15 @@
 // auth.config.ts
-import type { NextAuthConfig } from "next-auth"
+import type { NextAuthConfig } from 'next-auth';
 //import crypto from "crypto";
 
-
-
 export default {
-	providers: [],
-  session: { strategy: "jwt" },
-	secret: process.env.AUTH_SECRET,
+  providers: [],
+  session: { strategy: 'jwt' },
+  secret: process.env.AUTH_SECRET,
   pages: {
-    signIn: "/login",
+    signIn: '/login',
   },
-} satisfies NextAuthConfig
-
-
-
-
-
-
-
-
-
+} satisfies NextAuthConfig;
 
 /*
 // auth.ts

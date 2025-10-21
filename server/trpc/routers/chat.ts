@@ -1,12 +1,12 @@
-import { createTRPCRouter, publicProcedure } from "../trpc";
-import { z } from "zod";
+import { createTRPCRouter, publicProcedure } from '../trpc';
+import { z } from 'zod';
 
 type Message = {
   id: string;
   user: string;
   text: string;
   timestamp: number;
-	estacao: string;
+  estacao: string;
 };
 
 const messages: Message[] = [];
@@ -17,8 +17,8 @@ export const chatRouter = createTRPCRouter({
       z.object({
         user: z.string(),
         text: z.string().min(1).max(200),
-				estacao: z.string(),
-      })
+        estacao: z.string(),
+      }),
     )
     .mutation(({ input }) => {
       const now = Date.now();
@@ -27,7 +27,7 @@ export const chatRouter = createTRPCRouter({
         .sort((a, b) => b.timestamp - a.timestamp)[0];
 
       if (lastMessage && now - lastMessage.timestamp < 5000) {
-        throw new Error("Espere 5 segundos antes de enviar outra mensagem");
+        throw new Error('Espere 5 segundos antes de enviar outra mensagem');
       }
 
       const message: Message = {
@@ -35,7 +35,7 @@ export const chatRouter = createTRPCRouter({
         user: input.user,
         text: input.text,
         timestamp: now,
-				estacao: input.estacao
+        estacao: input.estacao,
       };
 
       messages.push(message);

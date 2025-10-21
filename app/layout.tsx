@@ -1,17 +1,16 @@
-"use client"
+'use client';
 
-import "./globals.css"
-import '@/styles/main-design.css'
+import './globals.css';
+import '@/styles/main-design.css';
 
-import { useState, useEffect } from "react"
-import { Orbitron, Rajdhani } from 'next/font/google'
-import Providers from "@/lib/providers"
+import { useState, useEffect } from 'react';
+import { Orbitron, Rajdhani } from 'next/font/google';
+import Providers from '@/lib/providers';
 
-const orbitron = Orbitron({ subsets: ['latin'], weight: ['400','700','900'] })
-const rajdhani = Rajdhani({ subsets: ['latin'], weight: ['300','400','500','700'] })
+const orbitron = Orbitron({ subsets: ['latin'], weight: ['400', '700', '900'] });
+const rajdhani = Rajdhani({ subsets: ['latin'], weight: ['300', '400', '500', '700'] });
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  
   return (
     <html lang="en">
       <body>
@@ -25,16 +24,8 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <div className="shape shape-square"></div>
         </div>
 
-       
-
-
         {/* Conteúdo da página */}
-				<Providers>
-					
-					{children}
-					
-        	
-				</Providers>
+        <Providers>{children}</Providers>
 
         {/* Footer
         <footer className="fixed bottom-0 w-full">
@@ -45,5 +36,5 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
 				*/}
       </body>
     </html>
-  )
+  );
 }

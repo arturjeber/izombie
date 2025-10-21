@@ -1,9 +1,9 @@
-import type { NextConfig } from "next";
+import type { NextConfig } from 'next';
 
 const nextConfig: NextConfig = {
   /* config options here */
-	reactStrictMode: false,
-	productionBrowserSourceMaps: true,
+  reactStrictMode: false,
+  productionBrowserSourceMaps: true,
   experimental: {
     turbo: {
       resolveAlias: {},

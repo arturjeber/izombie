@@ -9,7 +9,7 @@
       "webRoot": "${workspaceFolder}",
       "sourceMaps": true,
       "trace": true,
-			"skipFiles": ["<node_internals>/**", "**/node_modules/**"],
+      "skipFiles": ["<node_internals>/**", "**/node_modules/**"],
       "outFiles": ["${workspaceFolder}/.next/**/*.js"]
     },
     {

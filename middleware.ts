@@ -1,55 +1,46 @@
-import authConfig from "@/lib/auth.config"
-import NextAuth from "next-auth"
-import type { NextRequest } from "next/server" 
-import { NextResponse } from "next/server";
+import authConfig from '@/lib/auth.config';
+import NextAuth from 'next-auth';
+import type { NextRequest } from 'next/server';
+import { NextResponse } from 'next/server';
 
-const { auth } = NextAuth(authConfig)
+const { auth } = NextAuth(authConfig);
 
 export default auth(async function middleware(req: NextRequest & { auth?: any }) {
-  const path = req.nextUrl.pathname
-	const session = await auth(); // ← obtém a sessão do usuário
-	
-  const email = req.cookies.get("pendingEmail")?.value;
+  const path = req.nextUrl.pathname;
+  const session = await auth(); // ← obtém a sessão do usuário
 
-	if(session && 
-		(
-			path == ("/") ||
-			path == ("/join") ||
-			path == ("/login") ||
-			path == ("/onboarding")
-		)
-	) return NextResponse.redirect(new URL("/status", req.nextUrl.origin));
+  const email = req.cookies.get('pendingEmail')?.value;
 
-	if(!email && 	path == ("/onboarding")) return NextResponse.redirect(new URL("/join", req.nextUrl.origin));
+  if (session && (path == '/' || path == '/join' || path == '/login' || path == '/onboarding'))
+    return NextResponse.redirect(new URL('/status', req.nextUrl.origin));
+
+  if (!email && path == '/onboarding')
+    return NextResponse.redirect(new URL('/join', req.nextUrl.origin));
   // Exceções manuais
   if (
-    path == ("/") ||
-    path.startsWith("/login") ||
-    path.startsWith("/onboarding") ||
-    path.startsWith("/join") ||
-    path.startsWith("/open") ||
-    path.startsWith("/blog") ||
-    path.startsWith("/trpc") ||
-    path.startsWith("/_next") ||
-    path.startsWith("/sw.js") ||
-    path.startsWith("/favicon.ico") ||
-		path.startsWith("/manifest.webmanifest") ||
-		path.startsWith("/api/auth") ||
-		path.startsWith("/api/trpc/message.create") ||
-		path.startsWith("/api/trpc/auth.register") || 
-		path.startsWith("/api/trpc/email.sendEmail") || 
-		path.startsWith("/api/trpc/user.createPlayer") || 
+    path == '/' ||
+    path.startsWith('/login') ||
+    path.startsWith('/onboarding') ||
+    path.startsWith('/join') ||
+    path.startsWith('/open') ||
+    path.startsWith('/blog') ||
+    path.startsWith('/trpc') ||
+    path.startsWith('/_next') ||
+    path.startsWith('/sw.js') ||
+    path.startsWith('/favicon.ico') ||
+    path.startsWith('/manifest.webmanifest') ||
+    path.startsWith('/api/auth') ||
+    path.startsWith('/api/trpc/message.create') ||
+    path.startsWith('/api/trpc/auth.register') ||
+    path.startsWith('/api/trpc/email.sendEmail') ||
+    path.startsWith('/api/trpc/user.createPlayer') ||
     path.match(/\.(svg|png|jpg|jpeg|gif|webp)$/)
   ) {
-    return NextResponse.next()
-  }
-	else if(!session) return NextResponse.redirect(new URL("/login", req.nextUrl.origin))
+    return NextResponse.next();
+  } else if (!session) return NextResponse.redirect(new URL('/login', req.nextUrl.origin));
 
-
-
-	return NextResponse.next()
-})
-
+  return NextResponse.next();
+});
 
 /*
 import { auth } from "@/lib/auth"; // seu auth wrapper ou getServerSession/next-auth

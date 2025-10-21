@@ -1,38 +1,33 @@
-import { z } from "zod";
-import { EmailClient } from "@azure/communication-email";
-import { publicProcedure, createTRPCRouter } from "../trpc"
+import { z } from 'zod';
+import { EmailClient } from '@azure/communication-email';
+import { publicProcedure, createTRPCRouter } from '../trpc';
 
 export const emailRouter = createTRPCRouter({
-  sendEmail: publicProcedure
-    .input(z.object({to: z.email()}))
-    .mutation(async ({ ctx, input }) => {
+  sendEmail: publicProcedure.input(z.object({ to: z.email() })).mutation(async ({ ctx, input }) => {
+    try {
+      const client = new EmailClient(process.env.AZURE_EMAIL_CONNECTION_STRING!);
 
-			try{
-				const client = new EmailClient(process.env.AZURE_EMAIL_CONNECTION_STRING!);
+      const emailMessage = {
+        senderAddress: `"iZombie Central" <${process.env.AZURE_EMAIL_SENDER}>`,
+        content: {
+          subject: 'iZombie activation code',
+          plainText: 'Your code is: ',
+          html: `<p>Your code is: </p>`,
+        },
+        recipients: { to: [{ address: input.to }] },
+      };
 
-				const emailMessage = {
-					senderAddress: `"iZombie Central" <${process.env.AZURE_EMAIL_SENDER}>`,
-					content: {
-						subject: "iZombie activation code",
-						plainText: "Your code is: ",
-						html: `<p>Your code is: </p>`,
-					},
-					recipients: {to: [{ address: input.to }]},
-				};
+      //const poller = await client.beginSend(emailMessage);
+      const result = { status: 'Succeeded' }; ///await poller.pollUntilDone();
 
-				//const poller = await client.beginSend(emailMessage);
-				const result = {status: "Succeeded"} ///await poller.pollUntilDone();
+      if (result.status !== 'Succeeded') {
+        throw new Error(`Falha no envio: ${result.status}`);
+      }
 
-				if (result.status !== "Succeeded") {
-					throw new Error(`Falha no envio: ${result.status}`);
-				}
-
-				return { success: true };
-			}
-			catch (e){
-				console.log("error", e)
-				throw new Error("Falha ao enviar o email");
-
-			}
-    }),
+      return { success: true };
+    } catch (e) {
+      console.log('error', e);
+      throw new Error('Falha ao enviar o email');
+    }
+  }),
 });

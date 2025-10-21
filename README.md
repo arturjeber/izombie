@@ -28,7 +28,7 @@ openssl rand -hex 32
 
 3-
 docker-compose down
-docker-compose build --no-cache                        
+docker-compose build --no-cache  
 docker-compose up -d
 
-npx prisma studio  
+npx prisma studio

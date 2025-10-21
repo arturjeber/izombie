@@ -1,7 +1,7 @@
 // next-auth.d.ts
-import "next-auth";
+import 'next-auth';
 
-declare module "next-auth" {
+declare module 'next-auth' {
   interface Session {
     user: {
       id: string;
@@ -9,22 +9,20 @@ declare module "next-auth" {
       email?: string | null;
       image?: string | null;
       emailVerified?: string | null;
-			tokenVersion?: number;
+      tokenVersion?: number;
     };
     accessToken: string;
     accessTokenExpires: number;
     refreshToken: string;
-		error?: string | null;
+    error?: string | null;
   }
 
   interface JWT {
     userId: string;
     tokenVersion?: number;
     accessToken: string;
-		emailVerified: string | null;
+    emailVerified: string | null;
     accessTokenExpires: number;
     refreshToken: string;
   }
 }
-
-

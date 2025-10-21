@@ -21,10 +21,10 @@ export default function QRCameraScanner({ onScanResult }: QRCameraScannerProps) 
     const initCameras = async () => {
       try {
         const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-        stream.getTracks().forEach(t => t.stop());
+        stream.getTracks().forEach((t) => t.stop());
 
         const devices = await navigator.mediaDevices.enumerateDevices();
-        const videoDevices = devices.filter(d => d.kind === 'videoinput');
+        const videoDevices = devices.filter((d) => d.kind === 'videoinput');
         setCameras(videoDevices);
         if (videoDevices[0]) setSelectedCamera(videoDevices[0].deviceId);
       } catch {
@@ -45,7 +45,9 @@ export default function QRCameraScanner({ onScanResult }: QRCameraScannerProps) 
       setScanSuccess(false);
       setPermissionDenied(false);
 
-      const stream = await navigator.mediaDevices.getUserMedia({ video: { deviceId: selectedCamera } });
+      const stream = await navigator.mediaDevices.getUserMedia({
+        video: { deviceId: selectedCamera },
+      });
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         await videoRef.current.play();
@@ -64,7 +66,7 @@ export default function QRCameraScanner({ onScanResult }: QRCameraScannerProps) 
             onScanResult(result.getText());
             stopScanner();
           }
-        }
+        },
       );
     } catch {
       setPermissionDenied(true);
@@ -76,7 +78,7 @@ export default function QRCameraScanner({ onScanResult }: QRCameraScannerProps) 
     controlsRef.current?.stop();
     if (videoRef.current?.srcObject) {
       const tracks = (videoRef.current.srcObject as MediaStream).getTracks();
-      tracks.forEach(t => t.stop());
+      tracks.forEach((t) => t.stop());
       videoRef.current.srcObject = null;
     }
     setIsScanning(false);
@@ -92,21 +94,41 @@ export default function QRCameraScanner({ onScanResult }: QRCameraScannerProps) 
           muted
         />
         {!isScanning && !scanSuccess && (
-          <div onClick={startScanner} style={{ color: '#fff', position: 'absolute', top: '40%', width: '100%',  whiteSpace: 'pre-line' }}>
+          <div
+            onClick={startScanner}
+            style={{
+              color: '#fff',
+              position: 'absolute',
+              top: '40%',
+              width: '100%',
+              whiteSpace: 'pre-line',
+            }}
+          >
             {permissionDenied ? 'Camera denied' : 'Look around \n(press to scan QR Code)'}
           </div>
         )}
         {scanSuccess && (
-          <div style={{
-            position: 'absolute', inset: 0, backgroundColor: 'rgba(0,0,0,0.6)',
-            display: 'flex', justifyContent: 'center', alignItems: 'center', color: 'white'
-          }}>
-            <div onClick={startScanner}>No location found!<br />(Press t try again)</div>
+          <div
+            style={{
+              position: 'absolute',
+              inset: 0,
+              backgroundColor: 'rgba(0,0,0,0.6)',
+              display: 'flex',
+              justifyContent: 'center',
+              alignItems: 'center',
+              color: 'white',
+            }}
+          >
+            <div onClick={startScanner}>
+              No location found!
+              <br />
+              (Press t try again)
+            </div>
           </div>
         )}
       </div>
 
-			{/*
+      {/*
       <div style={{ marginTop: 10 }}>
         <select
           value={selectedCamera}
@@ -127,7 +149,7 @@ export default function QRCameraScanner({ onScanResult }: QRCameraScannerProps) 
 			/** */}
 
       <div style={{ marginTop: 10 }}>
-        {isScanning &&(
+        {isScanning && (
           <button onClick={stopScanner} style={{ width: '100%', padding: 10 }}>
             Cancel
           </button>

@@ -1,33 +1,33 @@
 // auth.ts
-import { prisma } from "@/lib/prisma";
-import { PrismaAdapter } from "@auth/prisma-adapter";
-import bcrypt from "bcryptjs";
-import type { Session } from "next-auth";
-import NextAuth from "next-auth";
-import Credentials from "next-auth/providers/credentials";
-import { randomUUID } from "crypto"
-import { EmailClient } from "@azure/communication-email";
-import authConfig from "./auth.config";
-import { trpc } from "./trpcClient";
+import { prisma } from '@/lib/prisma';
+import { PrismaAdapter } from '@auth/prisma-adapter';
+import bcrypt from 'bcryptjs';
+import type { Session } from 'next-auth';
+import NextAuth from 'next-auth';
+import Credentials from 'next-auth/providers/credentials';
+import { randomUUID } from 'crypto';
+import { EmailClient } from '@azure/communication-email';
+import authConfig from './auth.config';
+import { trpc } from './trpcClient';
 
 const ACCESS_TOKEN_LIFETIME = 60 * 15; // 15 min
 const REFRESH_TOKEN_LIFETIME = 60 * 60 * 24 * 7; // 7 dias
 
-const emailClient = new EmailClient(process.env.AZURE_EMAIL_CONNECTION_STRING ?? "");
+const emailClient = new EmailClient(process.env.AZURE_EMAIL_CONNECTION_STRING ?? '');
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
   adapter: process.env.DATABASE_URL ? PrismaAdapter(prisma) : undefined,
-	...authConfig,
+  ...authConfig,
   providers: [
     Credentials({
-      name: "Credentials",
+      name: 'Credentials',
       credentials: {
-        email: { label: "Email", type: "email", placeholder: "email@exemplo.com" },
-        password: { label: "Senha", type: "password" },
+        email: { label: 'Email', type: 'email', placeholder: 'email@exemplo.com' },
+        password: { label: 'Senha', type: 'password' },
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          throw new Error("Email e senha são obrigatórios.");
+          throw new Error('Email e senha são obrigatórios.');
         }
 
         const user = await prisma.user.findUnique({
@@ -35,12 +35,12 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         });
 
         if (!user || !user.password) {
-          throw new Error("Usuário não encontrado.");
+          throw new Error('Usuário não encontrado.');
         }
 
         const isValid = await bcrypt.compare(credentials.password as string, user.password);
 
-        if (!isValid) throw new Error("Senha incorreta.");
+        if (!isValid) throw new Error('Senha incorreta.');
 
         return {
           id: user.id,
@@ -52,44 +52,45 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         };
       },
     }),
-		Credentials({
-			id: "email-code",
-			name: "Email + Código",
-			credentials: {
-				email: { label: "Email", type: "email" },
-				code: { label: "Código", type: "text" },
-				name: { label: "Código", type: "text" },
-				pass: { label: "Código", type: "password" },
-			},
-			async authorize({ email, name, pass, code }) {
-			
-				const record = await prisma.verificationToken.findFirst({
-					where: { identifier: email as string },
-					orderBy: { expires: "desc" }, // ← pega o mais recente
-				});
-		
-				if (!record) return null;
+    Credentials({
+      id: 'email-code',
+      name: 'Email + Código',
+      credentials: {
+        email: { label: 'Email', type: 'email' },
+        code: { label: 'Código', type: 'text' },
+        name: { label: 'Código', type: 'text' },
+        pass: { label: 'Código', type: 'password' },
+      },
+      async authorize({ email, name, pass, code }) {
+        const record = await prisma.verificationToken.findFirst({
+          where: { identifier: email as string },
+          orderBy: { expires: 'desc' }, // ← pega o mais recente
+        });
 
-				const isValid = await bcrypt.compare(code as string, record.token);
+        if (!record) return null;
 
-				if (!isValid) throw new Error("Invalid code")
-		
-				let user = await prisma.user.findUnique({ where: { email: email as string } });
+        const isValid = await bcrypt.compare(code as string, record.token);
 
-				if (user) throw new Error("User exists");
+        if (!isValid) throw new Error('Invalid code');
 
-				if (!user) {
-					user = await prisma.user.create({ data: { 
-						email: email as string,
-						name: name as string,
-						password: await bcrypt.hash(pass as string, 10),
-						emailVerified: new Date()
-					} });
+        let user = await prisma.user.findUnique({ where: { email: email as string } });
 
-					await prisma.player.create({data: {userId: user.id}})					
-				}
-		
-				return {
+        if (user) throw new Error('User exists');
+
+        if (!user) {
+          user = await prisma.user.create({
+            data: {
+              email: email as string,
+              name: name as string,
+              password: await bcrypt.hash(pass as string, 10),
+              emailVerified: new Date(),
+            },
+          });
+
+          await prisma.player.create({ data: { userId: user.id } });
+        }
+
+        return {
           id: user.id,
           name: user.name,
           email: user.email,
@@ -97,21 +98,20 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           emailVerified: user.emailVerified,
           tokenVersion: user.tokenVersion ?? 0,
         };
-			},
-		}),
-		Credentials({
-			id: "email-request",
-			name: "Email request code",
-			credentials: {
-				email: { label: "Email", type: "email" },
-			},
-			async authorize({ email }) {
-				
-				if (!email) throw new Error("Email é obrigatório");
+      },
+    }),
+    Credentials({
+      id: 'email-request',
+      name: 'Email request code',
+      credentials: {
+        email: { label: 'Email', type: 'email' },
+      },
+      async authorize({ email }) {
+        if (!email) throw new Error('Email é obrigatório');
 
-				const code = Math.floor(100000 + Math.random() * 900000).toString();
+        const code = Math.floor(100000 + Math.random() * 900000).toString();
 
-				await prisma.verificationToken.create({
+        await prisma.verificationToken.create({
           data: {
             identifier: email as string,
             token: await bcrypt.hash(code, 10),
@@ -121,9 +121,9 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
 
         // envia o e-mail via Azure
         const message = {
-          senderAddress: process.env.EMAIL_FROM ?? "",
+          senderAddress: process.env.EMAIL_FROM ?? '',
           content: {
-            subject: "iZombie - Validation code",
+            subject: 'iZombie - Validation code',
             plainText: `Your validation code is: ${code}\nExpires in 10 minutes.`,
             html: `<p>Your validation code is: <b>${code}</b></p><p>Expires in 10 minutes.</p>`,
           },
@@ -133,16 +133,19 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         const poller = await emailClient.beginSend(message);
         await poller.pollUntilDone();
 
-				return null;
-			},
-		})
+        return null;
+      },
+    }),
   ],
   callbacks: {
     async jwt({ token, user }) {
       const now = Math.floor(Date.now() / 1000);
 
       if (user) {
-        const typedUser = user as typeof user & { tokenVersion: number; emailVerified: Date | null  };
+        const typedUser = user as typeof user & {
+          tokenVersion: number;
+          emailVerified: Date | null;
+        };
 
         token.userId = typedUser.id;
         token.accessToken = randomUUID();
@@ -150,10 +153,9 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         token.accessTokenExpires = now + ACCESS_TOKEN_LIFETIME;
         token.refreshTokenExpires = now + REFRESH_TOKEN_LIFETIME;
 
-				//campos adicionais
-				token.tokenVersion = typedUser.tokenVersion ?? 0;
-				token.emailVerified = typedUser.emailVerified ?? null;
-
+        //campos adicionais
+        token.tokenVersion = typedUser.tokenVersion ?? 0;
+        token.emailVerified = typedUser.emailVerified ?? null;
       }
 
       // Refresh do token se expirou
@@ -165,8 +167,8 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         });
 
         if (!dbUser || dbUser.tokenVersion !== token.tokenVersion) {
-					token.error = "InvalidSession";
-					return token;
+          token.error = 'InvalidSession';
+          return token;
           //throw new Error("Sessão inválida");
         }
 
@@ -178,10 +180,10 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     },
 
     async session({ session, token }): Promise<Session> {
-			if (token?.error === "InvalidSession") {
-				session.error = "InvalidSession";
-			}
-			
+      if (token?.error === 'InvalidSession') {
+        session.error = 'InvalidSession';
+      }
+
       // Retorna um objeto literal tipado para evitar problemas de TS
       return {
         user: {
@@ -189,14 +191,14 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           name: session.user?.name ?? null,
           email: session.user?.email ?? null,
           image: session.user?.image ?? null,
-					emailVerified: token.emailVerified as string ?? null,
-          tokenVersion: token.tokenVersion as number ?? 0 ,
+          emailVerified: (token.emailVerified as string) ?? null,
+          tokenVersion: (token.tokenVersion as number) ?? 0,
         },
         accessToken: token.accessToken as string,
         accessTokenExpires: token.accessTokenExpires as number,
         refreshToken: token.refreshToken as string,
         expires: session.expires,
-				error: token?.error === "InvalidSession" ? "InvalidSession": null
+        error: token?.error === 'InvalidSession' ? 'InvalidSession' : null,
       };
     },
   },

@@ -1,112 +1,127 @@
-"use client"
+'use client';
 
-import { BoxBase } from "@/components/boxbase";
-import { useSession } from "next-auth/react";
-import { useEffect, useMemo, useState } from "react";
-import QRCameraScanner from "@/components/qrReader";
-import { trpc } from "@/lib/trpcClient";
-import { getCurrentLocation } from "@/lib/utils";
-import { isGameOn } from "@/lib/utilsSurvivor";
-import { PlayerStatus } from "./PlayerStatus";
-import { useRouter } from "next/navigation";
-
-
+import { BoxBase } from '@/components/boxbase';
+import { useSession } from 'next-auth/react';
+import { useEffect, useMemo, useState } from 'react';
+import QRCameraScanner from '@/components/qrReader';
+import { trpc } from '@/lib/trpcClient';
+import { getCurrentLocation } from '@/lib/utils';
+import { isGameOn } from '@/lib/utilsSurvivor';
+import { PlayerStatus } from './PlayerStatus';
+import { useRouter } from 'next/navigation';
 
 export const PlayerMoviment = () => {
-	const [loading, setLoading] = useState<boolean>(true)
-	const [movePlayerTo, setMovePlayerTo] = useState<any | null>(null);
-	const [titulo, setTitulo] = useState<string>("Go to")
-	const [location, setLocation] = useState<any>(null)
+  const [loading, setLoading] = useState<boolean>(true);
+  const [movePlayerTo, setMovePlayerTo] = useState<any | null>(null);
+  const [titulo, setTitulo] = useState<string>('Go to');
+  const [location, setLocation] = useState<any>(null);
 
-	const { data: session, status } = useSession();
-	const { data: player, isLoading } = trpc.user.loaduser.useQuery();
-	const door = trpc.user.openDoor.useMutation();
-	const map = trpc.map.getLocationsByScan.useMutation();
+  const { data: session, status } = useSession();
+  const { data: player, isLoading } = trpc.user.loaduser.useQuery();
+  const door = trpc.user.openDoor.useMutation();
+  const map = trpc.map.getLocationsByScan.useMutation();
 
+  const utils = trpc.useUtils();
 
-	const utils = trpc.useUtils();
+  const enterDoor = async () => {
+    if (!location || !player || !movePlayerTo) return;
 
+    const r = await door.mutateAsync({
+      latitude: location.latitude as number,
+      longitude: location.longitude as number,
+      accuracy: location.accuracy as number,
+      timestamp: location.timestamp,
+      playerId: player.id,
+      mapId: movePlayerTo.id,
+    });
 
-	const enterDoor = async() => {
-		if (!location || !player || !movePlayerTo) return;
-	
-		const r = await door.mutateAsync({
-			latitude: location.latitude as number,
-			longitude: location.longitude as number,
-			accuracy: location.accuracy as number,
-			timestamp: location.timestamp,
-			playerId: player.id,
-			mapId: movePlayerTo.id
-		})
+    utils.map.getAllByUser.invalidate();
+    utils.user.loaduser.invalidate(); // refaz a query loaduser
+    setMovePlayerTo(null);
+  };
 
-		utils.map.getAllByUser.invalidate();
-		utils.user.loaduser.invalidate(); // refaz a query loaduser
-		setMovePlayerTo(null)
-	}
+  const cancelMove = () => {
+    setMovePlayerTo(null);
+  };
 
-	const cancelMove = () => {
-		setMovePlayerTo(null)
-	}
+  const newLocation = async (qrInfo: string) => {
+    console.log('jkjdakja', qrInfo);
+    const location = await getCurrentLocation();
+    const t = await map.mutateAsync({ lat: location.latitude, long: location.longitude });
+    console.log('lll', t);
+    if (t) {
+      setMovePlayerTo(t[0]);
+      setTitulo(t[0]?.name);
+      setLocation(location);
+      setLoading(false);
+    }
+  };
 
-	const newLocation = async (qrInfo: string) => {
-		console.log("jkjdakja", qrInfo)
-		const location = await getCurrentLocation();
-		const t = await map.mutateAsync({lat: location.latitude, long: location.longitude})
-		console.log("lll",t)
-		if(t){
-			setMovePlayerTo(t[0])
-			setTitulo(t[0]?.name)
-			setLocation(location)
-			setLoading(false)
-		}
-	}
+  const teste = () => {
+    console.log('oi');
+  };
 
-	const teste = () => {
-		console.log("oi")
-	}
+  useEffect(() => {
+    // Verifica se o hash é "#moveto"
+    if (window.location.hash === '#moveto') {
+      newLocation('#moveto');
+    } else setLoading(false);
+  }, []); // roda sempre que o hash muda
 
-	
-	useEffect(() => {
-			// Verifica se o hash é "#moveto"
-			if (window.location.hash === "#moveto") {
-				newLocation("#moveto")	
-			}
-			else setLoading(false)
-		}, []); // roda sempre que o hash muda
-	
-	
+  return (
+    <BoxBase
+      titulo={loading ? 'loading' : (movePlayerTo?.name ?? 'Go to')}
+      superTitulo={'move to another place'}
+    >
+      <button type="button" onClick={teste} className="cta-primary btn-primary">
+        teste
+      </button>
+      {loading ? (
+        ''
+      ) : movePlayerTo ? (
+        <QrCodeDoor location={movePlayerTo} enter={enterDoor} cancel={cancelMove} />
+      ) : (
+        <QRCameraScanner onScanResult={newLocation} />
+      )}
+    </BoxBase>
+  );
+};
 
-	return(
-		<BoxBase titulo={loading ? "loading": movePlayerTo?.name ?? "Go to"} superTitulo={"move to another place"}>
-			<button type="button" onClick={teste} className="cta-primary btn-primary">teste</button>
-			{loading ? "" : movePlayerTo ? <QrCodeDoor location={movePlayerTo} enter={enterDoor} cancel={cancelMove}/> :
-				<QRCameraScanner onScanResult={newLocation}/>
-			}
-		</BoxBase>
-	)
-}
+const QrCodeDoor = ({
+  location,
+  cancel,
+  enter,
+}: {
+  location: any | null;
+  cancel: any;
+  enter: any;
+}) => {
+  if (!location) return null;
 
-const QrCodeDoor = ({location, cancel, enter}: {location:any|null, cancel: any, enter: any}) => {
-	if (!location) return null;
-
-  const mural = location?.comunicados ?? []; // garante que seja array	
+  const mural = location?.comunicados ?? []; // garante que seja array
 
   return (
     <div>
-			<div className="subtitle -mt-4! -mb-2!">{location.description}</div>
-			<div className="subtitle2">Signs around</div>
+      <div className="subtitle -mt-4! -mb-2!">{location.description}</div>
+      <div className="subtitle2">Signs around</div>
       {mural.map((a: any, index: number) => (
         <div key={index}>
-					<span>#{index+1} - {a.mensagem}</span>
-				</div>
+          <span>
+            #{index + 1} - {a.mensagem}
+          </span>
+        </div>
       ))}
 
-			<div className="mt-4">
-				<button onClick={enter} className="cta-button cta-primary w-full">Proceed to the door</button>
-			</div>
-			<div className="mt-4">
-				<button onClick={cancel} className="cta-button cta-secondary w-full">Cancel</button>
-			</div>
+      <div className="mt-4">
+        <button onClick={enter} className="cta-button cta-primary w-full">
+          Proceed to the door
+        </button>
+      </div>
+      <div className="mt-4">
+        <button onClick={cancel} className="cta-button cta-secondary w-full">
+          Cancel
+        </button>
+      </div>
     </div>
   );
-}
+};

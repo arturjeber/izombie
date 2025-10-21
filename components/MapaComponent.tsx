@@ -37,7 +37,6 @@ export default function MapaComponent({
       iconUrl,
       shadowUrl,
     });
-		
   }, []);
 
   if (!isClient) return null;

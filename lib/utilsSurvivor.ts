@@ -1,18 +1,17 @@
-import { launchDate } from "./utils";
+import { launchDate } from './utils';
 
 export const isGameOn = () => {
-	const diffStart = new Date().getTime() - new Date(launchDate).getTime()
-	if(diffStart < 0) return false;
+  const diffStart = new Date().getTime() - new Date(launchDate).getTime();
+  if (diffStart < 0) return false;
 
-	return true;
-}
+  return true;
+};
 
 export const timeLeftQrCode = (player: any) => {
-	if (!player) return 0;
-	
-	const diffStart = new Date().getTime() - new Date(player.lastPathId).getTime();
+  if (!player) return 0;
 
-	if(diffStart < 0) return 0
-	else return diffStart
-}
+  const diffStart = new Date().getTime() - new Date(player.lastPathId).getTime();
 
+  if (diffStart < 0) return 0;
+  else return diffStart;
+};
