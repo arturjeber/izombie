@@ -7,7 +7,6 @@ const rajdhani = Rajdhani({ subsets: ['latin'], weight: ['300', '400', '500', '7
 interface CountdownProps {
   targetDate: string; // ex: "2025-10-10T18:30:00"
 }
-
 export default function Countdown({ targetDate }: CountdownProps) {
   const [timeLeft, setTimeLeft] = useState<number>(0);
 

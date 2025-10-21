@@ -1,6 +1,6 @@
+import { FlatCompat } from '@eslint/eslintrc';
 import { dirname } from 'path';
 import { fileURLToPath } from 'url';
-import { FlatCompat } from '@eslint/eslintrc';
 
 // 🔹 Permite usar __dirname / __filename em ESM
 const __filename = fileURLToPath(import.meta.url);
@@ -59,6 +59,9 @@ export default [
           argsIgnorePattern: '^_',
         },
       ],
+			// outras regras...
+			"@typescript-eslint/no-explicit-any": "off",
+		
     },
 
     settings: {

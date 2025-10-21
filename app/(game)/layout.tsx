@@ -3,11 +3,11 @@
 import '@/app/globals.css';
 import '@/styles/main-design.css';
 
-import { Orbitron, Rajdhani } from 'next/font/google';
+import { Orbitron } from 'next/font/google';
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
 const orbitron = Orbitron({ subsets: ['latin'], weight: ['400', '700', '900'] });
-const rajdhani = Rajdhani({ subsets: ['latin'], weight: ['300', '400', '500', '700'] });
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -26,9 +26,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       {/* Navbar */}
       <nav id="navbar" className={scrolled ? 'scrolled' : ''}>
         <div className="nav-container">
-          <a href="/" className="logo-link">
+          <Link href="/" className="logo-link">
             <span className={`${orbitron.className} logo-text`}>iZombie</span>
-          </a>
+          </Link>
 
           <div className={`menu-toggle ${menuOpen ? 'active' : ''}`} onClick={toggleMenu}>
             <span></span>

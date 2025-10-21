@@ -3,13 +3,11 @@
 import '@/app/globals.css';
 import '@/styles/main-design.css';
 
-import { useState, useEffect } from 'react';
-import { Orbitron, Rajdhani } from 'next/font/google';
 import Providers from '@/lib/providers';
+import { Orbitron } from 'next/font/google';
+import { useEffect, useState } from 'react';
 
 const orbitron = Orbitron({ subsets: ['latin'], weight: ['400', '700', '900'] });
-const rajdhani = Rajdhani({ subsets: ['latin'], weight: ['300', '400', '500', '700'] });
-
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   const [menuOpen, setMenuOpen] = useState(false);
   const toggleMenu = () => setMenuOpen(!menuOpen);

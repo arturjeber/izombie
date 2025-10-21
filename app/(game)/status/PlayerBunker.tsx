@@ -14,7 +14,7 @@ export const PlayerBunker = () => {
 
   const utils = trpc.useUtils(); // acesso às funções de cache
 
-  const { data: player, isLoading } = trpc.user.loaduser.useQuery();
+  const { data: player } = trpc.user.loaduser.useQuery();
   const location = player?.paths?.[0]?.map;
 
   const createBunker = trpc.map.createBunker.useMutation({
