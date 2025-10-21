@@ -104,7 +104,7 @@ export const PlayerStatus = () => {
     }, timerTick);
 
     return () => clearInterval(timer);
-  }, [player, isOn]);
+  }, [player, updatePlayer, isOn]);
 
   return (
     <BoxBase

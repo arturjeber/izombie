@@ -47,7 +47,7 @@ export default function HomePage() {
         },
       );
     } catch (error) {
-      error = '';
+      console.log(error);
       alert('An error occurred while sending the message.');
     }
   };

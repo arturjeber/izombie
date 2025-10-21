@@ -4,7 +4,7 @@ import { BoxBase } from '@/components/boxbase';
 import QRCameraScanner from '@/components/qrReader';
 import { trpc } from '@/lib/trpcClient';
 import { getCurrentLocation } from '@/lib/utils';
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 
 export const PlayerMoviment = () => {
   const [loading, setLoading] = useState<boolean>(true);
@@ -38,17 +38,20 @@ export const PlayerMoviment = () => {
     setMovePlayerTo(null);
   };
 
-  const newLocation = async (qrInfo: string) => {
-    console.log('jkjdakja', qrInfo);
-    const location = await getCurrentLocation();
-    const t = await map.mutateAsync({ lat: location.latitude, long: location.longitude });
-    console.log('lll', t);
-    if (t) {
-      setMovePlayerTo(t[0]);
-      setLocation(location);
-      setLoading(false);
-    }
-  };
+  const newLocation = useCallback(
+    async (qrInfo: string) => {
+      console.log('jkjdakja', qrInfo);
+      const location = await getCurrentLocation();
+      const t = await map.mutateAsync({ lat: location.latitude, long: location.longitude });
+      console.log('lll', t);
+      if (t) {
+        setMovePlayerTo(t[0]);
+        setLocation(location);
+        setLoading(false);
+      }
+    },
+    [map],
+  );
 
   const teste = () => {
     console.log('oi');
