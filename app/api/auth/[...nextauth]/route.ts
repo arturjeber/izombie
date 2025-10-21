@@ -1,4 +1,4 @@
-export const dynamic = "force-dynamic";
+export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs'; // garante Node runtime
 
 import { handlers } from '@/lib/auth';
