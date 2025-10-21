@@ -1,9 +1,8 @@
 'use client';
 
 import { signIn } from 'next-auth/react';
-import { redirect } from 'next/navigation';
-import { useState } from 'react';
 import { useRouter } from 'next/navigation';
+import { useState } from 'react';
 
 export default function LoginPage() {
   const [error, setError] = useState('');
@@ -22,6 +21,8 @@ export default function LoginPage() {
     localStorage.setItem('pendingEmail', email as string);
     document.cookie = `pendingEmail=${email}; path=/;`;
     router.replace('/onboarding');
+    setError('');
+    setLoading(false);
   }
 
   if (loading)

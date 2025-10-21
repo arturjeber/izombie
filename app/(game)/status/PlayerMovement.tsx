@@ -4,17 +4,14 @@ import { BoxBase } from '@/components/boxbase';
 import QRCameraScanner from '@/components/qrReader';
 import { trpc } from '@/lib/trpcClient';
 import { getCurrentLocation } from '@/lib/utils';
-import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 
 export const PlayerMoviment = () => {
   const [loading, setLoading] = useState<boolean>(true);
   const [movePlayerTo, setMovePlayerTo] = useState<any | null>(null);
-  const [titulo, setTitulo] = useState<string>('Go to');
   const [location, setLocation] = useState<any>(null);
 
-  const { data: session, status } = useSession();
-  const { data: player, isLoading } = trpc.user.loaduser.useQuery();
+  const { data: player } = trpc.user.loaduser.useQuery();
   const door = trpc.user.openDoor.useMutation();
   const map = trpc.map.getLocationsByScan.useMutation();
 
@@ -48,7 +45,6 @@ export const PlayerMoviment = () => {
     console.log('lll', t);
     if (t) {
       setMovePlayerTo(t[0]);
-      setTitulo(t[0]?.name);
       setLocation(location);
       setLoading(false);
     }

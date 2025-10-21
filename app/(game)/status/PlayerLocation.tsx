@@ -11,7 +11,7 @@ import { launchDate } from '@/lib/utils';
 import { isGameOn } from '@/lib/utilsSurvivor';
 
 export const PlayerLocation = () => {
-  const { data: player, isLoading } = trpc.user.loaduser.useQuery();
+  const { data: player } = trpc.user.loaduser.useQuery();
   const location = player?.paths?.[0]?.map;
 
   const { data: localPlayers } = trpc.map.getAllUsersByLocation.useQuery({ id: location?.id || 0 });

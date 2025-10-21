@@ -13,17 +13,13 @@ import { Backpack } from '@/components/Backpack';
 import Image from 'next/image';
 
 export const PlayerStatus = () => {
-  const [error, setError] = useState('');
   const [timeLeftQrCode, setTimeLeftQrCode] = useState<number>();
   const [energy, setEnergy] = useState<number>(100);
-  const [kills, setKills] = useState<string>('Loading...');
-  const [movePlayerTo, setMovePlayerTo] = useState<object | null>(null);
 
-  const { data: player, isLoading } = trpc.user.loaduser.useQuery();
+  const { data: player } = trpc.user.loaduser.useQuery();
   const updatePlayer = trpc.user.update.useMutation();
-  const map = trpc.map.getLocationsByScan.useMutation();
 
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
 
   const isOn = isGameOn();
 
