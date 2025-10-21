@@ -1,7 +1,6 @@
 // auth.ts
 export const dynamic = 'force-dynamic';
 
-
 import { getPrisma } from '@/lib/prisma';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import { EmailClient } from '@azure/communication-email';
@@ -18,7 +17,7 @@ const REFRESH_TOKEN_LIFETIME = 60 * 60 * 24 * 7; // 7 dias
 const emailClient = new EmailClient(process.env.AZURE_EMAIL_CONNECTION_STRING ?? '');
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
-	trustHost: true, // importante para Azure
+  trustHost: true, // importante para Azure
   adapter: process.env.DATABASE_URL ? PrismaAdapter(getPrisma()) : undefined,
   ...authConfig,
   providers: [
