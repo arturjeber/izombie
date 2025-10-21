@@ -1,5 +1,4 @@
 'use client';
-import { BoxBase } from '@/components/boxbase';
 import { trpc } from '@/lib/trpcClient';
 import { useSession } from 'next-auth/react';
 import { useState } from 'react';
@@ -8,7 +7,7 @@ export default function RadioLocal({ estacao }: { estacao: string }) {
   const [text, setText] = useState('');
   const [canSend, setCanSend] = useState(true);
 
-  const { data: session, status } = useSession();
+  const { data: session } = useSession();
   const user = session?.user.name;
 
   const utils = trpc.useUtils();

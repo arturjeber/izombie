@@ -59,7 +59,7 @@ export const PlayerMoviment = () => {
     if (window.location.hash === '#moveto') {
       newLocation('#moveto');
     } else setLoading(false);
-  }, []); // roda sempre que o hash muda
+  }, [newLocation]); // roda sempre que o hash muda
 
   return (
     <BoxBase

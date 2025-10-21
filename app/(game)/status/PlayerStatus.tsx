@@ -23,23 +23,6 @@ export const PlayerStatus = () => {
 
   const isOn = isGameOn();
 
-  const updateEnergy = (lastCheck: Date) => {
-    const DURACAO_TOTAL_MS = 60 * 60 * 1000; // 1 hora em milissegundos
-
-    const diffs =
-      DURACAO_TOTAL_MS -
-      (new Date().getTime() - new Date(lastCheck).getTime() - 24 * DURACAO_TOTAL_MS);
-
-    let energy = Math.round((diffs / DURACAO_TOTAL_MS) * 100);
-
-    // limitar entre 0 e 100
-    if (energy > 100) energy = 100;
-    if (energy < 0) energy = 0;
-
-    updatePlayer.mutate({ energy });
-    setEnergy(energy);
-  };
-
   const stringTimeLeft = () => {
     if (!isOn) return 'loading round #7';
     if (timeLeftQrCode == undefined) return 'loading...';
@@ -74,6 +57,23 @@ export const PlayerStatus = () => {
   };
 
   useEffect(() => {
+    const updateEnergy = (lastCheck: Date) => {
+      const DURACAO_TOTAL_MS = 60 * 60 * 1000; // 1 hora em milissegundos
+
+      const diffs =
+        DURACAO_TOTAL_MS -
+        (new Date().getTime() - new Date(lastCheck).getTime() - 24 * DURACAO_TOTAL_MS);
+
+      let energy = Math.round((diffs / DURACAO_TOTAL_MS) * 100);
+
+      // limitar entre 0 e 100
+      if (energy > 100) energy = 100;
+      if (energy < 0) energy = 0;
+
+      updatePlayer.mutate({ energy });
+      setEnergy(energy);
+    };
+
     console.log('play', player);
     if (!player) return;
     if (!isOn) return;
@@ -104,7 +104,7 @@ export const PlayerStatus = () => {
     }, timerTick);
 
     return () => clearInterval(timer);
-  }, [player, updateEnergy, isOn]);
+  }, [player, isOn]);
 
   return (
     <BoxBase

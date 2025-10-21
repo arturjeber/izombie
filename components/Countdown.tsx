@@ -1,6 +1,5 @@
 'use client'; // necessário no Next.js 13+ se estiver em app directory
 import { Rajdhani } from 'next/font/google';
-import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 const rajdhani = Rajdhani({ subsets: ['latin'], weight: ['300', '400', '500', '700'] });
 
@@ -12,7 +11,6 @@ export default function Countdown({ targetDate }: CountdownProps) {
 
   const intervalRef = useRef<NodeJS.Timeout | null>(null);
 
-  const router = useRouter();
   const target = new Date(targetDate).getTime();
   const now = new Date().getTime();
   const difference = target - now;
@@ -48,7 +46,7 @@ export default function Countdown({ targetDate }: CountdownProps) {
       }
     };
     // [] → executa apenas uma vez
-  }, []);
+  }, [targetDate]);
 
   // Converter milissegundos para dias, horas, minutos e segundos
   const days = Math.floor(timeLeft / (1000 * 60 * 60 * 24));

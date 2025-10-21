@@ -1,14 +1,13 @@
 // auth.ts
 import { prisma } from '@/lib/prisma';
 import { PrismaAdapter } from '@auth/prisma-adapter';
+import { EmailClient } from '@azure/communication-email';
 import bcrypt from 'bcryptjs';
+import { randomUUID } from 'crypto';
 import type { Session } from 'next-auth';
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
-import { randomUUID } from 'crypto';
-import { EmailClient } from '@azure/communication-email';
 import authConfig from './auth.config';
-import { trpc } from './trpcClient';
 
 const ACCESS_TOKEN_LIFETIME = 60 * 15; // 15 min
 const REFRESH_TOKEN_LIFETIME = 60 * 60 * 24 * 7; // 7 dias

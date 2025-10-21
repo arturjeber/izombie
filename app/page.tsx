@@ -11,12 +11,6 @@ import { useEffect, useState } from 'react';
 const orbitron = Orbitron({ subsets: ['latin'], weight: ['400', '700', '900'] });
 
 export default function HomePage() {
-  const textSets = [
-    { title: 'FUTURE IS NOW', subtitle: 'Enter the next dimension of digital innovation' },
-    { title: 'BEYOND LIMITS', subtitle: 'Where technology meets infinite possibilities' },
-    { title: 'ELECTRIC DREAMS', subtitle: "Powering tomorrow's digital revolution today" },
-  ];
-
   const [menuOpen, setMenuOpen] = useState(false);
   const toggleMenu = () => setMenuOpen(!menuOpen);
   const [scrolled, setScrolled] = useState(false);
@@ -53,6 +47,7 @@ export default function HomePage() {
         },
       );
     } catch (error) {
+      error = '';
       alert('An error occurred while sending the message.');
     }
   };
@@ -379,7 +374,7 @@ export default function HomePage() {
           <div className="contact-form">
             {messageSent ? (
               <div className="success-message">
-                <p>Thank you for reaching out! We'll get back to you soon.</p>
+                <p>{`Thank you for reaching out! We'll get back to you soon.`}</p>
               </div>
             ) : (
               <>

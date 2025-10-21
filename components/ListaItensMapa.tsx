@@ -20,11 +20,6 @@ export const ListaItensMapa = ({ location }: { location: any }) => {
     },
   });
 
-  const drop = trpc.user.dropItem.useMutation({
-    onSuccess: () => utils.user.loaduser.invalidate(),
-    onError: () => utils.user.loaduser.invalidate(),
-  });
-
   const getItem = (id: number) => {
     setError('');
     get.mutateAsync({ id });

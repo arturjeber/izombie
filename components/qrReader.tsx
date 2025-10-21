@@ -1,7 +1,7 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
 import { BrowserQRCodeReader, IScannerControls } from '@zxing/browser';
+import { useEffect, useRef, useState } from 'react';
 
 interface QRCameraScannerProps {
   onScanResult: (result: string) => void;
@@ -9,7 +9,7 @@ interface QRCameraScannerProps {
 
 export default function QRCameraScanner({ onScanResult }: QRCameraScannerProps) {
   const [isScanning, setIsScanning] = useState(false);
-  const [cameras, setCameras] = useState<MediaDeviceInfo[]>([]);
+  //const [cameras, setCameras] = useState<MediaDeviceInfo[]>([]);
   const [selectedCamera, setSelectedCamera] = useState<string>('');
   const [permissionDenied, setPermissionDenied] = useState(false);
   const [scanSuccess, setScanSuccess] = useState(false);
@@ -25,7 +25,7 @@ export default function QRCameraScanner({ onScanResult }: QRCameraScannerProps) 
 
         const devices = await navigator.mediaDevices.enumerateDevices();
         const videoDevices = devices.filter((d) => d.kind === 'videoinput');
-        setCameras(videoDevices);
+        //setCameras(videoDevices);
         if (videoDevices[0]) setSelectedCamera(videoDevices[0].deviceId);
       } catch {
         setPermissionDenied(true);
@@ -53,7 +53,7 @@ export default function QRCameraScanner({ onScanResult }: QRCameraScannerProps) 
         await videoRef.current.play();
       }
 
-      const hints = new Map();
+      //const hints = new Map();
       //hints.set(DecodeHintType.TRY_HARDER, true);
 
       const codeReader = new BrowserQRCodeReader();
