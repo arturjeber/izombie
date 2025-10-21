@@ -3,13 +3,12 @@
 import Countdown from '@/components/Countdown';
 import { trpc } from '@/lib/trpcClient';
 import { launchDate } from '@/lib/utils';
-import { Orbitron, Rajdhani } from 'next/font/google';
+import { Orbitron } from 'next/font/google';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useState } from 'react';
 
 const orbitron = Orbitron({ subsets: ['latin'], weight: ['400', '700', '900'] });
-const rajdhani = Rajdhani({ subsets: ['latin'], weight: ['300', '400', '500', '700'] });
 
 export default function HomePage() {
   const textSets = [
@@ -28,7 +27,6 @@ export default function HomePage() {
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const [currentText, setCurrentText] = useState(0);
   const [activeTab, setActiveTab] = useState('origin');
   const [messageSent, setMessageSent] = useState(false);
 
@@ -68,13 +66,6 @@ export default function HomePage() {
       window.scrollTo({ top: y, behavior: 'smooth' });
     }
   };
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setCurrentText((prev) => (prev + 1) % textSets.length);
-    }, 5000);
-    return () => clearInterval(interval);
-  }, []);
 
   const featureTabs = [
     {

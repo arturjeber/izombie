@@ -23,7 +23,6 @@ export const PlayerStatus = () => {
 
   const isOn = isGameOn();
 
-  const updateStatus = () => {};
   const updateEnergy = (lastCheck: Date) => {
     const DURACAO_TOTAL_MS = 60 * 60 * 1000; // 1 hora em milissegundos
 
@@ -105,7 +104,7 @@ export const PlayerStatus = () => {
     }, timerTick);
 
     return () => clearInterval(timer);
-  }, [player]);
+  }, [player, updateEnergy, isOn]);
 
   return (
     <BoxBase

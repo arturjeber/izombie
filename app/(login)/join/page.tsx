@@ -44,7 +44,7 @@ export default function LoginPage() {
           </div>
 
           <button type="submit" className="submit-btn">
-            I'm a survivor
+            {`I'm a survivor`}
           </button>
           <div className="text-2xl text-center mt-4">
             {error && <p className="text-red-500">{error}</p>}

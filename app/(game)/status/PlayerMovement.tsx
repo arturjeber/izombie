@@ -20,7 +20,7 @@ export const PlayerMoviment = () => {
   const enterDoor = async () => {
     if (!location || !player || !movePlayerTo) return;
 
-    const r = await door.mutateAsync({
+    await door.mutateAsync({
       latitude: location.latitude as number,
       longitude: location.longitude as number,
       accuracy: location.accuracy as number,
