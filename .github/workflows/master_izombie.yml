@@ -1,6 +1,3 @@
-# GitHub Actions: Build e deploy Node.js (Next.js) para Azure Web App - izombie
-# Docs: https://github.com/Azure/webapps-deploy
-
 name: Build and Deploy Node.js App to Azure Web App - izombie
 
 on:
@@ -14,12 +11,7 @@ jobs:
     runs-on: ubuntu-latest
 
     permissions:
-      contents: read # Necessário para actions/checkout
-    env:
-      DATABASE_URL: ${{ secrets.DATABASE_URL }}
-      NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
-      NEXTAUTH_URL: izombie-bjavc6afeufmgdh3.chilecentral-01.azurewebsites.net
-      NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+      contents: read
 
     steps:
       - name: Checkout code
@@ -40,13 +32,14 @@ jobs:
 
       - name: Build Next.js app
         run: npm run build --if-present
+        # ❌ NÃO passar DATABASE_URL aqui
         env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
+          NEXTAUTH_URL: izombie-bjavc6afeufmgdh3.chilecentral-01.azurewebsites.net
+          NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
 
       - name: Run tests
         run: npm run test --if-present
-        env:
-          DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: Upload artifact for deployment
         uses: actions/upload-artifact@v4
@@ -57,13 +50,12 @@ jobs:
             package-lock.json
             .next
             public
-            # inclua pastas de assets ou build necessários
 
   deploy:
     runs-on: ubuntu-latest
     needs: build
     permissions:
-      id-token: write # Necessário para JWT
+      id-token: write
       contents: read
 
     steps:
