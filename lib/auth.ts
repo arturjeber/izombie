@@ -16,7 +16,7 @@ const REFRESH_TOKEN_LIFETIME = 60 * 60 * 24 * 7; // 7 dias
 const emailClient = new EmailClient(process.env.AZURE_EMAIL_CONNECTION_STRING ?? "");
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
-  adapter: PrismaAdapter(prisma),
+  adapter: process.env.DATABASE_URL ? PrismaAdapter(prisma) : undefined,
 	...authConfig,
   providers: [
     Credentials({
