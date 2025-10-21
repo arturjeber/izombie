@@ -1,5 +1,5 @@
 // auth.ts
-import { prisma } from '@/lib/prisma';
+import { getPrisma } from '@/lib/prisma';
 import { PrismaAdapter } from '@auth/prisma-adapter';
 import { EmailClient } from '@azure/communication-email';
 import bcrypt from 'bcryptjs';
@@ -15,7 +15,7 @@ const REFRESH_TOKEN_LIFETIME = 60 * 60 * 24 * 7; // 7 dias
 const emailClient = new EmailClient(process.env.AZURE_EMAIL_CONNECTION_STRING ?? '');
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
-  adapter: process.env.DATABASE_URL ? PrismaAdapter(prisma) : undefined,
+  adapter: process.env.DATABASE_URL ? PrismaAdapter(getPrisma()) : undefined,
   ...authConfig,
   providers: [
     Credentials({
