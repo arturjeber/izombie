@@ -1,5 +1,6 @@
 // auth.ts
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 import { getPrisma } from '@/lib/prisma';
 import { PrismaAdapter } from '@auth/prisma-adapter';

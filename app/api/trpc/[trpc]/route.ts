@@ -1,5 +1,6 @@
 // app/api/trpc/[trpc]/route.ts
 export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
 
 import { createContext } from '@/server/trpc/context';
 import { appRouter } from '@/server/trpc/router';
