@@ -30,9 +30,6 @@ jobs:
         env:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
-      - name: Check DATABASE_URL
-        run: echo ${{DATABASE_URL}}
-
       - name: Build Next.js app
         run: npm run build --if-present
         # ❌ NÃO passar DATABASE_URL aqui
@@ -40,6 +37,7 @@ jobs:
           NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
           NEXTAUTH_URL: izombie-bjavc6afeufmgdh3.chilecentral-01.azurewebsites.net
           NEXT_PUBLIC_API_URL: ${{ secrets.NEXT_PUBLIC_API_URL }}
+          DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: Run tests
         run: npm run test --if-present
