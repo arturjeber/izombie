@@ -4,18 +4,19 @@ const nextConfig: NextConfig = {
   reactStrictMode: false,
   productionBrowserSourceMaps: true,
 
-  // 🔹 Importante: força que páginas sejam renderizadas dinamicamente
-  // (evita "collecting page data" tentar conectar ao banco durante o build)
-  experimental: {
-    dynamicIO: true,
-  },
-
-  // 🔹 Garante que o runtime seja Node.js (essencial no Azure)
+  // Garante build compatível com Azure e evita acesso a banco no build
   output: 'standalone',
 
+  // Desabilita o comportamento que tenta coletar dados no build
+  experimental: {
+    // nada de dynamicIO / cacheComponents aqui
+    serverActions: {
+      allowedOrigins: ['*'],
+    },
+  },
+
+  // Apenas organização de extensões (não interfere no build)
   turbopack: {
-    resolveAlias: {},
-    rules: {},
     resolveExtensions: ['.ts', '.tsx', '.js', '.jsx'],
   },
 };
