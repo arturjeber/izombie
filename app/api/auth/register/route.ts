@@ -1,4 +1,4 @@
-import { prisma } from '@/lib/prisma';
+import { getPrisma } from '@/lib/prisma';
 import bcrypt from 'bcrypt';
 import { NextResponse } from 'next/server';
 
@@ -9,6 +9,7 @@ export async function POST(req: Request) {
     if (!email || !password) {
       return NextResponse.json({ error: 'Email e senha são obrigatórios' }, { status: 400 });
     }
+		const prisma = getPrisma();
 
     const existingUser = await prisma.user.findUnique({ where: { email } });
     if (existingUser) {
