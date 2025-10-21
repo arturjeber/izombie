@@ -39,7 +39,7 @@ jobs:
           DATABASE_URL: ${{ secrets.DATABASE_URL }}
 
       - name: variaveis
-        run: echo "DATABASE_URL=${DATABASE_URL}"
+        run: echo "DATABASE_URL=${{ secrets.DATABASE_URL }}"
 
       - name: Build Next.js app
         run: npm run build --if-present
