@@ -9,7 +9,7 @@ const nextConfig: NextConfig = {
     rules: {},
 
     // Habilita geração de source maps (experimental)
-    resolveExtensions: ['.ts', '.tsx', '.js', '.jsx']
+    resolveExtensions: ['.ts', '.tsx', '.js', '.jsx'],
   },
 };
 

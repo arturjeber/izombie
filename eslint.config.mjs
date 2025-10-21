@@ -59,9 +59,8 @@ export default [
           argsIgnorePattern: '^_',
         },
       ],
-			// outras regras...
-			"@typescript-eslint/no-explicit-any": "off",
-		
+      // outras regras...
+      '@typescript-eslint/no-explicit-any': 'off',
     },
 
     settings: {
