@@ -25,6 +25,8 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         password: { label: 'Senha', type: 'password' },
       },
       async authorize(credentials) {
+				const prisma = getPrisma();
+
         if (!credentials?.email || !credentials?.password) {
           throw new Error('Email e senha são obrigatórios.');
         }
@@ -61,6 +63,8 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         pass: { label: 'Código', type: 'password' },
       },
       async authorize({ email, name, pass, code }) {
+				const prisma = getPrisma();
+
         const record = await prisma.verificationToken.findFirst({
           where: { identifier: email as string },
           orderBy: { expires: 'desc' }, // ← pega o mais recente
@@ -107,6 +111,8 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       },
       async authorize({ email }) {
         if (!email) throw new Error('Email é obrigatório');
+				const prisma = getPrisma();
+
 
         const code = Math.floor(100000 + Math.random() * 900000).toString();
 
@@ -160,6 +166,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       // Refresh do token se expirou
       const accessTokenExpires = token.accessTokenExpires as number;
       if (accessTokenExpires && now > accessTokenExpires) {
+				const prisma = getPrisma();
         const dbUser = await prisma.user.findUnique({
           where: { id: token.userId as string },
           select: { tokenVersion: true },
