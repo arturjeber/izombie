@@ -1,3 +1,5 @@
+export const dynamic = 'force-dynamic';
+
 // auth.ts
 import { getPrisma } from '@/lib/prisma';
 import { PrismaAdapter } from '@auth/prisma-adapter';
