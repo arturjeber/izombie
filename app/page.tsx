@@ -1,11 +1,12 @@
 'use client';
 
 import Countdown from '@/components/Countdown';
+import { trpc } from '@/lib/trpcClient';
+import { launchDate } from '@/lib/utils';
 import { Orbitron, Rajdhani } from 'next/font/google';
 import Image from 'next/image';
+import Link from 'next/link';
 import { useEffect, useState } from 'react';
-import { launchDate } from '@/lib/utils';
-import { trpc } from '@/lib/trpcClient';
 
 const orbitron = Orbitron({ subsets: ['latin'], weight: ['400', '700', '900'] });
 const rajdhani = Rajdhani({ subsets: ['latin'], weight: ['300', '400', '500', '700'] });
@@ -175,9 +176,9 @@ export default function HomePage() {
       {/* Navbar */}
       <nav id="navbar" className={scrolled ? 'scrolled' : ''}>
         <div className="nav-container">
-          <a href="/" className="logo-link">
+          <Link href="/" className="logo-link">
             <span className={`${orbitron.className} logo-text`}>iZombie</span>
-          </a>
+          </Link>
 
           <div className={`menu-toggle ${menuOpen ? 'active' : ''}`} onClick={toggleMenu}>
             <span></span>

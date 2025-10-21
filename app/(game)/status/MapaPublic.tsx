@@ -6,7 +6,7 @@ import dynamic from 'next/dynamic';
 import { trpc } from '@/lib/trpcClient';
 
 export const MapaPublic = () => {
-  const { data: pontos, isLoading } = trpc.map.getAllByUser.useQuery();
+  const { data: pontos } = trpc.map.getAllByUser.useQuery();
 
   const Mapa = dynamic(() => import('@/components/MapaComponent'), { ssr: false });
 
