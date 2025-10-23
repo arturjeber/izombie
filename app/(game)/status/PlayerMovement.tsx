@@ -40,10 +40,8 @@ export const PlayerMoviment = () => {
 
   const newLocation = useCallback(
     async (qrInfo: string) => {
-      console.log('jkjdakja', qrInfo);
       const location = await getCurrentLocation();
       const t = await map.mutateAsync({ lat: location.latitude, long: location.longitude });
-      console.log('lll', t);
       if (t) {
         setMovePlayerTo(t[0]);
         setLocation(location);
@@ -52,10 +50,6 @@ export const PlayerMoviment = () => {
     },
     [map],
   );
-
-  const teste = () => {
-    console.log('oi');
-  };
 
   useEffect(() => {
     // Verifica se o hash é "#moveto"
@@ -69,9 +63,6 @@ export const PlayerMoviment = () => {
       titulo={loading ? 'loading' : (movePlayerTo?.name ?? 'Go to')}
       superTitulo={'move to another place'}
     >
-      <button type="button" onClick={teste} className="cta-primary btn-primary">
-        teste
-      </button>
       {loading ? (
         ''
       ) : movePlayerTo ? (

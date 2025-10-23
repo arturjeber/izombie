@@ -26,26 +26,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       {/* Navbar */}
       <nav id="navbar" className={scrolled ? 'scrolled' : ''}>
         <div className="nav-container">
-          <Link href="/" className="logo-link">
+          <Link href="http://izombie.live" className="logo-link">
             <span className={`${orbitron.className} logo-text`}>iZombie</span>
           </Link>
-
-          <div className={`menu-toggle ${menuOpen ? 'active' : ''}`} onClick={toggleMenu}>
-            <span></span>
-            <span></span>
-            <span></span>
-          </div>
-          <ul className={`nav-links ${menuOpen ? 'active' : ''}`}>
-            <li>
-              <a href="#game">Round # 7</a>
-            </li>
-            <li>
-              <a href="#awards">Awards</a>
-            </li>
-            <li>
-              <a href="#contact">Contact</a>
-            </li>
-          </ul>
         </div>
       </nav>
       {children}
