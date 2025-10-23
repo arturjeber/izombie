@@ -13,6 +13,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   const [menuOpen, setMenuOpen] = useState(false);
   const toggleMenu = () => setMenuOpen(!menuOpen);
   const [scrolled, setScrolled] = useState(false);
+  //teste
 
   useEffect(() => {
     document.title = 'iZombie';
