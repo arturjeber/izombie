@@ -80,6 +80,9 @@ importers:
       react-qr-scanner:
         specifier: 1.0.0-alpha.11
         version: 1.0.0-alpha.11(react-dom@19.1.1(react@19.1.1))(react@19.1.1)
+      smartlook-client:
+        specifier: ^10.0.0
+        version: 10.0.0
       superjson:
         specifier: ^2.2.2
         version: 2.2.2
@@ -4348,6 +4351,9 @@ packages:
   slice-ansi@7.1.2:
     resolution: {integrity: sha512-iOBWFgUX7caIZiuutICxVgX1SdxwAVFFKwt1EvMYYec/NWO5meOJ6K5uQxhrYBdQJne4KxiqZc+KptFOWFSI9w==}
     engines: {node: '>=18'}
+
+  smartlook-client@10.0.0:
+    resolution: {integrity: sha512-KAyy+MXxgqfQJOqsnJhlFiBP29g7rE50hmdoSB3YYq15Dl9y8WEdh1OhdUAYWnENkyDHu3v5lE39O6VuhQMgrA==}
 
   source-map-js@1.2.1:
     resolution: {integrity: sha512-UXWMKhLOwVKb728IUtQPXxfYU+usdybtUrK/8uGE8CQMvrhOpwvzDBwj0QhSL7MQc7vIsISBG8VQ8+IDQxpfQA==}
@@ -9767,6 +9773,8 @@ snapshots:
     dependencies:
       ansi-styles: 6.2.3
       is-fullwidth-code-point: 5.1.0
+
+  smartlook-client@10.0.0: {}
 
   source-map-js@1.2.1: {}
 
