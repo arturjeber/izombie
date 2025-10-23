@@ -67,93 +67,83 @@ export default function HomePage() {
       id: 'origin',
       label: 'Origin - Round #7',
       icon: '/handWhite.png',
-      text: `<p>Santiago will never be the same. In the streets of Barrio Italia, Vitacura, and Las Condes, an unknown infection has turned ordinary people into flesh-hungry zombies. </p> 
-						<p><b>You are a survivor.</b></p>
-						<p>Every step, every QR code you scan, could save your life or doom you to transformation.There are hidden weapons, food to maintain your strength, and dangerous zones where hordes await. But beware: not everything is as it seems — false clues could cost you your life.</p>
-						<p><b>Do you have the courage to survive iZombie?</b></p>
-		`,
+      text: `<p>Santiago will never be the same. In the streets of Barrio Italia, Vitacura, and Las Condes, an unknown infection has turned ordinary people into flesh-hungry zombies.</p>
+						 <p><b>You are a survivor.</b></p>
+						 <p>Every step, every QR code you scan, could save your life or doom you to transformation. There are hidden weapons, food to maintain your strength, and dangerous zones where hordes await. But beware: not everything is as it seems — false clues could cost you your life.</p>
+						 <p><b>Do you have the courage to survive iZombie?</b></p>`,
     },
     {
       id: 'rules',
       label: 'How to play? (Rules)',
       icon: '/diceWhite.png',
       text: `
-				<p>O objetivo do jogo é sobreviver ou, no caso dos zumbis, infectar outros jogadores.</p>
-				<p>O mapa é composto por QR codes espalhados; cada QR code pode conter comida, armadilhas, zumbis ou oportunidades estratégicas.</p>
-				<p>O jogo possui áreas de alto risco, QR codes contaminados e locais estratégicos que exigem planejamento e cooperação.</p>
-				<p><b>Ao fim do countdown, um jogador é escolhido aleatoriamente como paciente zero. ( primeiro infectado )</b></p>
-		`,
+					<p>The goal of the game is to survive or, in the case of zombies, to infect other players.</p>
+					<p>The map is composed of scattered QR codes; each QR code may contain food, traps, zombies, or strategic opportunities.</p>
+					<p>The game has high-risk areas, contaminated QR codes, and strategic locations that require planning and cooperation.</p>
+					<p><b>At the end of the countdown, one player is randomly chosen as patient zero (the first infected).</b></p>
+			`,
     },
     {
       id: 'zumbis',
-      label: 'Zumbis (Infectados)',
+      label: 'Zombies (Infected)',
       icon: '/zombieWhite.png',
       text: `
-				<p>Zumbis são jogadores que foram infectados e agora buscam infectar outros.</p>
-				<p>Qualquer QR code lido por um zumbi se torna perigoso para os sobreviventes.</p>
-				<p>Permanecer parado não afeta o zumbi. A fome não os afeta e não tem cura.</p>
-				<p>Se um zumbi for morto por um sobrevivente (arma, emboscada ou outra regra de combate), ele torna-se observador do round, podendo acompanhar o jogo, mas não participa mais de ataques ou contágio.</p>
-		`,
+					<p>Zombies are players who have been infected and now seek to infect others.</p>
+					<p>Any QR code scanned by a zombie becomes dangerous for survivors.</p>
+					<p>Staying still does not affect zombies. Hunger doesn’t affect them, and there is no cure.</p>
+					<p>If a zombie is killed by a survivor (weapon, ambush, or other combat rule), they become a round observer — they can watch the game but no longer participate in attacks or contagion.</p>
+			`,
     },
     {
       id: 'survivor',
       label: 'Survivor',
       icon: '/survivorWhite.png',
       text: `
-			<p>Sobreviventes que não interagirem com o jogo (não ler pelo menos 1 QR code a cada 24h*) perdem energia até morrer por inanição e se tornam Zumbies.</p>
-			<p>*Ter comida na mochila aumenta o tempo que podem ficar sem escanear QR code.</p>
-			<p>Fome atingindo 100% + não comer em 1 hora → vira zumbi.</p>
-
-			<p><b>Se ler um QR code já lido por um zumbi, deve escolher: <br /></b>
-				- usar arma (se possuídas) e tentar matar o zumbi ou; <br />
-				- buscar outro QR code em tempo determinado para fugir
-			</p>
-
-			<p>Se falhar ao matar o zumbi ou fugir, torna-se zumbi imediatamente.</p>
-			<p>Algumas comidas podem estar contaminadas e reduzem a energia ou aumentam fome</p>
-
-			<p>Alguns QR codes falsos podem disfarçar armadilhas ou zumbis.</p>
-
-			<p><b>Cada leitura de QR code move o jogador para o local do QR code.</b></p>
-			
-
-		`,
+					<p>Survivors who don’t interact with the game (don’t scan at least one QR code every 24h*) lose energy until they die of starvation and become zombies.</p>
+					<p>*Having food in the backpack increases the time they can go without scanning a QR code.</p>
+					<p>Hunger reaching 100% + not eating for 1 hour → turns into a zombie.</p>
+	
+					<p><b>If you scan a QR code already read by a zombie, you must choose: <br /></b>
+						- use a weapon (if you have one) and try to kill the zombie, or; <br />
+						- find another QR code within the given time to escape.
+					</p>
+	
+					<p>If you fail to kill the zombie or escape, you immediately become a zombie.</p>
+					<p>Some food may be contaminated and reduce energy or increase hunger.</p>
+	
+					<p>Some fake QR codes may disguise traps or zombies.</p>
+	
+					<p><b>Each QR code scan moves the player to the location of that QR code.</b></p>
+			`,
     },
     {
       id: 'engagement',
       label: 'Engagement',
       icon: '/engagementWhite.png',
       text: `
-			<p>Um jogador permanece no local do QR code até ler outro QR code.</p>
-
-			
-
-			
-			<p><b>Se um zumbi lê um QR code seguido por um sobrevivente (ou vice-versa), ocorre um confronto.</b></p>
-
-			<p><b>Força Acumulativa -</b> Mais de um jogador do mesmo time lendo o mesmo QR code soma forças: <br />
-			- Zumbis juntos → mais poder para infectar sobreviventes. <br />
-			- Sobreviventes juntos → mais poder para resistir ou derrotar zumbis.
-			</p>
-
-
-			<p>O jogador ou grupo com menor força é derrotado: <br />
-			- Sobreviventes derrotados → viram zumbis <br />
-			- Zumbis derrotados → mortos, tornam-se observadores
-			</p>
-			
-			
-			
-		`,
+					<p>A player remains at the location of the QR code until scanning another one.</p>
+	
+					<p><b>If a zombie scans a QR code right before or after a survivor (or vice versa), a confrontation occurs.</b></p>
+	
+					<p><b>Cumulative Strength -</b> More than one player from the same team scanning the same QR code combines their strength: <br />
+					- Zombies together → more power to infect survivors. <br />
+					- Survivors together → more power to resist or defeat zombies.
+					</p>
+	
+					<p>The player or group with less strength is defeated: <br />
+					- Defeated survivors → become zombies. <br />
+					- Defeated zombies → die and become observers.
+					</p>
+			`,
     },
     {
       id: 'end',
-      label: 'The end',
+      label: 'The End',
       icon: '/endWhite.png',
       text: `
-			<p>O jogo termina quando um único sobrevivente ou zumbi permanece de pé.</p>
-			<p>Os vencedores serão coroados e receberão suas recompensas.</p>
-		`,
+					<p>The game ends when only one survivor or zombie remains standing.</p>
+					<p>The winners will be crowned and will receive their rewards.</p>
+			`,
     },
   ];
 
