@@ -1,0 +1,71 @@
+name: Deploy to Azure Web App
+
+on:
+  push:
+    branches:
+      - main # ou 'dev', conforme o seu branch de produção
+  workflow_dispatch:
+
+env:
+  AZURE_WEBAPP_NAME: izombie # nome do App Service no Azure
+  AZURE_RESOURCE_GROUP: izombie-rg # opcional, se quiser usá-lo em steps de gerenciamento
+  NODE_VERSION: 22 # garante Node 22 no build
+  PNPM_HOME: ~/.local/share/pnpm # diretório de cache do pnpm
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      # 1️⃣ Checkout do código
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      # 2️⃣ Configura Node.js 22 + cache PNPM
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      # 3️⃣ Instala PNPM
+      - name: Install pnpm
+        run: npm install -g pnpm
+
+      # 4️⃣ Instala dependências com cache
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      # 5️⃣ Limpa cache do Next.js (opcional, útil se tiver erros de build)
+      - name: Clean previous builds
+        run: rm -rf .next
+
+      # 6️⃣ Build do app (standalone mode)
+      - name: Build Next.js app
+        run: |
+          pnpm build
+          mkdir -p deploy
+          cp -R .next/standalone/* deploy/
+          cp -R .next/static deploy/.next/static
+          cp -R public deploy/public
+          cp -R prisma deploy/prisma
+          cp package.json pnpm-lock.yaml deploy/
+
+      # 7️⃣ Instala apenas dependências de produção
+      - name: Install production dependencies
+        run: |
+          cd deploy
+          pnpm install --prod --ignore-scripts
+
+      # 8️⃣ Autentica no Azure
+      - name: 'Login to Azure'
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      # 9️⃣ Publica para o Azure App Service
+      - name: 'Deploy to Azure Web App'
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ env.AZURE_WEBAPP_NAME }}
+          package: ./deploy
