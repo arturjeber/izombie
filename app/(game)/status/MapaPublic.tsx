@@ -7,6 +7,7 @@ import { trpc } from '@/lib/trpcClient';
 
 export const MapaPublic = () => {
   const { data: pontos } = trpc.map.getAllByUser.useQuery();
+  console.log('pontos', pontos);
 
   const Mapa = dynamic(() => import('@/components/MapaComponent'), { ssr: false });
 

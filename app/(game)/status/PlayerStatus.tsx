@@ -13,13 +13,13 @@ import { Backpack } from '@/components/Backpack';
 import Image from 'next/image';
 
 export const PlayerStatus = () => {
-  const [timeLeftQrCode, setTimeLeftQrCode] = useState<number>();
-  const [energy, setEnergy] = useState<number>(100);
-
   const { data: player } = trpc.user.loaduser.useQuery();
   const updatePlayer = trpc.user.update.useMutation();
 
   const { data: session } = useSession();
+
+  const [timeLeftQrCode, setTimeLeftQrCode] = useState<number>();
+  const [energy, setEnergy] = useState<number>(player?.energy ?? 100);
 
   const isOn = isGameOn();
 
@@ -30,6 +30,7 @@ export const PlayerStatus = () => {
   };
 
   const valorTimeLeft = () => {
+    if (timeLeftQrCode === 0) return 0;
     return ((timeLeftQrCode || 1000 * 60 * 60 * 24) * 100) / (1000 * 60 * 60 * 24);
   };
   const stringEnergy = () => {
@@ -57,54 +58,44 @@ export const PlayerStatus = () => {
   };
 
   useEffect(() => {
-    const updateEnergy = (lastCheck: Date) => {
-      const DURACAO_TOTAL_MS = 60 * 60 * 1000; // 1 hora em milissegundos
+    if (!player || !isOn) return;
 
-      const diffs =
-        DURACAO_TOTAL_MS -
-        (new Date().getTime() - new Date(lastCheck).getTime() - 24 * DURACAO_TOTAL_MS);
+    const lastCheck =
+      player.lastPathId != null ? new Date(player.paths[0].timestamp) : new Date(launchDate);
 
-      let energy = Math.round((diffs / DURACAO_TOTAL_MS) * 100);
+    const DECAY_NORMAL = 0.028; // % por minuto
+    const DECAY_FAST = 0.167; // % por minuto após 24h sem QR
+    const MAX_TIME = 24 * 60 * 60 * 1000; // 24h em ms
+    const timerTick = 1000; // 1s
 
-      // limitar entre 0 e 100
-      if (energy > 100) energy = 100;
-      if (energy < 0) energy = 0;
-
-      updatePlayer.mutate({ energy });
-      setEnergy(energy);
-    };
-
-    console.log('play', player);
-    if (!player) return;
-    if (!isOn) return;
-
-    setEnergy(player.energy);
-
-    let lastCheck = new Date(launchDate);
-    if (player.lastPathId != null) lastCheck = player.paths[0].timestamp; // colocar horario leitura qr code
-
-    const startTime = 24 * 60 * 60 * 1000 - (new Date().getTime() - new Date(lastCheck).getTime());
-
-    if (startTime < 0) {
-      setTimeLeftQrCode(0);
-      updateEnergy(lastCheck);
-    } else setTimeLeftQrCode(startTime);
-
-    const timerTick = 1000; // * 60; // 1 min
     const timer = setInterval(() => {
-      setTimeLeftQrCode((prev) => {
-        console.log('PREV', prev);
-        if (prev == undefined) return startTime;
-        if (prev < 1000 * 60) {
-          updateEnergy(lastCheck);
-          return 1;
+      const elapsed = Date.now() - lastCheck.getTime();
+      const minutesSinceCheck = elapsed / 60000;
+
+      setTimeLeftQrCode(Math.max(MAX_TIME - elapsed, 0));
+
+      const decayRate = minutesSinceCheck < 24 * 60 ? DECAY_NORMAL : DECAY_FAST;
+
+      setEnergy((prevEnergy) => {
+        console.log('JHHH', player.energy, prevEnergy);
+        if (prevEnergy !== player?.energy) prevEnergy = player.energy ?? 100;
+
+        let newEnergy = prevEnergy - decayRate / 60;
+
+        if (newEnergy < 0) newEnergy = 0;
+        if (newEnergy > 100) newEnergy = 100;
+
+        // atualiza backend somente se houver diferença
+        if (Math.round(newEnergy) !== Math.round(prevEnergy)) {
+          updatePlayer.mutate({ energy: Math.round(newEnergy) });
         }
-        return 24 * 60 * 60 * 1000 - (new Date().getTime() - new Date(lastCheck).getTime());
+
+        return newEnergy;
       });
     }, timerTick);
 
     return () => clearInterval(timer);
-  }, [player, updatePlayer, isOn]);
+  }, [player, isOn]);
 
   return (
     <BoxBase
@@ -120,7 +111,7 @@ export const PlayerStatus = () => {
       />
       <UserBar
         titulo={'Energy'}
-        valor={energy}
+        valor={Math.round(energy)}
         vDecor={'%'}
         tituloRight={stringEnergy()}
         st={'mb-5'}

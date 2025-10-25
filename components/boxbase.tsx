@@ -5,11 +5,12 @@ interface BoxBaseProps {
   superTitulo?: React.ReactNode;
   children?: React.ReactNode;
   kills?: number | null;
+  id?: string;
 }
 
-export function BoxBase({ superTitulo, titulo, children, kills = null }: BoxBaseProps) {
+export function BoxBase({ superTitulo, titulo, children, kills = null, id = '' }: BoxBaseProps) {
   return (
-    <section className="about w-full ">
+    <section className="about w-full" id={id}>
       <div className="box ml-2 mr-2 h-full">
         {superTitulo && (
           <h2 className="box-title2 truncate">

@@ -61,7 +61,7 @@ export const authConfig: AuthOptions = {
       },
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
-          throw new Error("Email e senha são obrigatórios.");
+         throwTRPCError("Email e senha são obrigatórios.");
         }
 
         const user = await prisma.user.findUnique({
@@ -69,13 +69,13 @@ export const authConfig: AuthOptions = {
         });
 
         if (!user || !user.password) {
-          throw new Error("Usuário não encontrado.");
+         throwTRPCError("Usuário não encontrado.");
         }
 
         const isValid = await bcrypt.compare(credentials.password as string, user.password);
 
         if (!isValid) {
-          throw new Error("Senha incorreta.");
+         throwTRPCError("Senha incorreta.");
         }
 
         return {
@@ -130,7 +130,7 @@ export const authConfig: AuthOptions = {
         });
 
         if (!dbUser || dbUser.tokenVersion !== token.tokenVersion) {
-          throw new Error("Sessão inválida");
+         throwTRPCError("Sessão inválida");
         }
 
         token.accessToken = generateUUID();

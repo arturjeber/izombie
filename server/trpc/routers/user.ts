@@ -1,5 +1,8 @@
+import { haversine } from '@/lib/utils';
+import { throwTRPCError } from '@/lib/utilsTRPC';
 import { z } from 'zod';
 import { createTRPCRouter, publicProcedure } from '../trpc';
+
 
 export const userRouter = createTRPCRouter({
   getAll: publicProcedure.query(({ ctx }) => ctx.prisma.user.findMany()),
@@ -22,7 +25,7 @@ export const userRouter = createTRPCRouter({
     )
     .mutation(({ ctx, input }) => {
       const userId = ctx.session?.user.id;
-      if (!userId) throw new Error('Usuário não autenticado');
+      if (!userId) throwTRPCError('Usuário não autenticado');
 
       // Remover campos undefined para evitar erro no Prisma
       const data: any = {};
@@ -31,7 +34,7 @@ export const userRouter = createTRPCRouter({
       if (input.energy !== undefined) data.energy = input.energy;
 
       if (Object.keys(data).length === 0) {
-        throw new Error('Nenhum dado para atualizar');
+       throwTRPCError('Nenhum dado para atualizar');
       }
 
       return ctx.prisma.player.update({ where: { userId }, data });
@@ -80,6 +83,30 @@ export const userRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       // Criar path e atualizar lastPathId do player na mesma transação
       const result = await ctx.prisma.$transaction(async (prisma) => {
+
+				// 1️⃣ Buscar último path do player
+				const player = await prisma.player.findUnique({
+					where: { id: input.playerId },
+					include: { lastPath: true }, // supondo que tenha relação lastPath
+				});
+	
+				if (!player) return throwTRPCError('Player not found');
+	
+				// 2️⃣ Validar se a posição mudou
+				const lastPath = player.lastPath;
+				// Verificar se a distância é menor ou igual a 100m usando a função haversine existente
+				if (
+					lastPath &&
+					haversine(
+						lastPath.latitude,
+						lastPath.longitude,
+						input.latitude,
+						input.longitude
+					) <= 100
+				) {
+					return throwTRPCError('Player is already at this location or too close.');
+				}
+				
         // 1️⃣ Criar path
         const path = await prisma.path.create({
           data: {
@@ -112,8 +139,8 @@ export const userRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       const item = await ctx.prisma.mapItens.findUnique({ where: { id: input.id } });
-      if (!item) throw new Error('Item não encontrado');
-      if (item.quantity <= 0) throw new Error('Item sem quantidade disponível');
+      if (!item) return throwTRPCError('Item não encontrado');
+      if (item.quantity <= 0) return throwTRPCError('Item sem quantidade disponível');
 
       const itemAtualizado = await ctx.prisma.mapItens.update({
         where: { id: input.id },
@@ -137,7 +164,7 @@ export const userRouter = createTRPCRouter({
         where: { userId: ctx.session?.user.id },
         select: { energy: true },
       });
-      if (!player) throw new Error('PLayer not found');
+      if (!player) return throwTRPCError('PLayer not found');
 
       const novaEnergia = Math.min(100, player.energy + energyValue);
 
@@ -154,15 +181,15 @@ export const userRouter = createTRPCRouter({
     }),
   getItem: publicProcedure.input(z.object({ id: z.number() })).mutation(async ({ ctx, input }) => {
     const item = await ctx.prisma.mapItens.findUnique({ where: { id: input.id } });
-    if (!item) throw new Error('Item não encontrado');
-    if (item.quantity <= 0) throw new Error('Item sem quantidade disponível');
+    if (!item) return throwTRPCError('Item não encontrado');
+    if (item.quantity <= 0) return throwTRPCError('Item sem quantidade disponível');
 
     // 3️⃣ Busca o player
     const player = await ctx.prisma.player.findUnique({
       where: { userId: ctx.session?.user.id },
       select: { id: true, limitItens: true },
     });
-    if (!player) throw new Error('Player não encontrado');
+    if (!player) return throwTRPCError('Player não encontrado');
 
     // 3️⃣ Calcula o espaço já ocupado na backpack
     const inventario = await ctx.prisma.itens.findMany({
@@ -175,7 +202,7 @@ export const userRouter = createTRPCRouter({
     const espacoDisponivel = player.limitItens - espacoOcupado;
 
     if (espacoDisponivel < item.size) {
-      throw new Error('Espaço insuficiente na mochila');
+     throwTRPCError('Espaço insuficiente na mochila');
     }
 
     const itemAtualizado = await ctx.prisma.mapItens.update({
@@ -227,7 +254,7 @@ export const userRouter = createTRPCRouter({
       where: { userId: ctx.session?.user.id },
       select: { id: true },
     });
-    if (!player) throw new Error('Player não encontrado');
+    if (!player) return throwTRPCError('Player não encontrado');
 
     // 2️⃣ Busca o item no inventário do player
     const itemInventario = await ctx.prisma.itens.findFirst({
@@ -236,8 +263,8 @@ export const userRouter = createTRPCRouter({
         id: input.id,
       },
     });
-    if (!itemInventario) throw new Error('Item não encontrado no inventário');
-    if (itemInventario.quantity <= 0) throw new Error('Item sem quantidade disponível');
+    if (!itemInventario) return throwTRPCError('Item não encontrado no inventário');
+    if (itemInventario.quantity <= 0) return throwTRPCError('Item sem quantidade disponível');
 
     // 3️⃣ Diminui 1 unidade do item no inventário do player
     const itemAtualizadoInventario = await ctx.prisma.itens.update({
@@ -251,7 +278,7 @@ export const userRouter = createTRPCRouter({
       orderBy: { timestamp: 'desc' },
       select: { mapId: true },
     });
-    if (!ultimaLocalizacao) throw new Error('Última localização não encontrada');
+    if (!ultimaLocalizacao) return throwTRPCError('Última localização não encontrada');
 
     // 5️⃣ Adiciona o item na localização correspondente do mapa
     const itemMapa = await ctx.prisma.mapItens.findFirst({

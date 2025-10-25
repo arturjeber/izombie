@@ -32,7 +32,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         const prisma = getPrisma();
 
         if (!credentials?.email || !credentials?.password) {
-          throw new Error('Email e senha são obrigatórios.');
+         throwTRPCError('Email e senha são obrigatórios.');
         }
 
         const user = await prisma.user.findUnique({
@@ -40,12 +40,12 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         });
 
         if (!user || !user.password) {
-          throw new Error('Usuário não encontrado.');
+         throwTRPCError('Usuário não encontrado.');
         }
 
         const isValid = await bcrypt.compare(credentials.password as string, user.password);
 
-        if (!isValid) throw new Error('Senha incorreta.');
+        if (!isValid) return throwTRPCError('Senha incorreta.');
 
         return {
           id: user.id,
@@ -78,11 +78,11 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
 
         const isValid = await bcrypt.compare(code as string, record.token);
 
-        if (!isValid) throw new Error('Invalid code');
+        if (!isValid) return throwTRPCError('Invalid code');
 
         let user = await prisma.user.findUnique({ where: { email: email as string } });
 
-        if (user) throw new Error('User exists');
+        if (user) return throwTRPCError('User exists');
 
         if (!user) {
           user = await prisma.user.create({
@@ -114,7 +114,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         email: { label: 'Email', type: 'email' },
       },
       async authorize({ email }) {
-        if (!email) throw new Error('Email é obrigatório');
+        if (!email) return throwTRPCError('Email é obrigatório');
         const prisma = getPrisma();
 
         const code = Math.floor(100000 + Math.random() * 900000).toString();

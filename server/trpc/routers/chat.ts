@@ -1,5 +1,5 @@
-import { createTRPCRouter, publicProcedure } from '../trpc';
 import { z } from 'zod';
+import { createTRPCRouter, publicProcedure } from '../trpc';
 
 type Message = {
   id: string;
@@ -27,7 +27,7 @@ export const chatRouter = createTRPCRouter({
         .sort((a, b) => b.timestamp - a.timestamp)[0];
 
       if (lastMessage && now - lastMessage.timestamp < 5000) {
-        throw new Error('Espere 5 segundos antes de enviar outra mensagem');
+       throwTRPCError('Espere 5 segundos antes de enviar outra mensagem');
       }
 
       const message: Message = {

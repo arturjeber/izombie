@@ -1,6 +1,6 @@
-import { z } from 'zod';
 import { EmailClient } from '@azure/communication-email';
-import { publicProcedure, createTRPCRouter } from '../trpc';
+import { z } from 'zod';
+import { createTRPCRouter, publicProcedure } from '../trpc';
 
 export const emailRouter = createTRPCRouter({
   sendEmail: publicProcedure.input(z.object({ to: z.email() })).mutation(async ({ ctx, input }) => {
@@ -21,13 +21,13 @@ export const emailRouter = createTRPCRouter({
       const result = { status: 'Succeeded' }; ///await poller.pollUntilDone();
 
       if (result.status !== 'Succeeded') {
-        throw new Error(`Falha no envio: ${result.status}`);
+       throwTRPCError(`Falha no envio: ${result.status}`);
       }
 
       return { success: true };
     } catch (e) {
       console.log('error', e);
-      throw new Error('Falha ao enviar o email');
+     throwTRPCError('Falha ao enviar o email');
     }
   }),
 });
