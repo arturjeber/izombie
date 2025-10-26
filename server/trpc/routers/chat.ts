@@ -27,7 +27,7 @@ export const chatRouter = createTRPCRouter({
         .sort((a, b) => b.timestamp - a.timestamp)[0];
 
       if (lastMessage && now - lastMessage.timestamp < 5000) {
-        throwTRPCError('Espere 5 segundos antes de enviar outra mensagem');
+         throw throwTRPCError('Espere 5 segundos antes de enviar outra mensagem');
       }
 
       const message: Message = {

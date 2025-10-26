@@ -12,7 +12,7 @@ export const authRouter = createTRPCRouter({
         where: { email: input.email },
       });
 
-      if (existingUser) return throwTRPCError('Usuário já existe');
+      if (existingUser)throw throwTRPCError('Usuário já existe');
 
       const pass = Math.random().toString(36);
 
@@ -36,16 +36,16 @@ export const authRouter = createTRPCRouter({
       }),
     )
     .mutation(async ({ ctx, input }) => {
-      if (!ctx.session) return throwTRPCError('Session não encontrada');
+      if (!ctx.session)throw throwTRPCError('Session não encontrada');
 
       const user = await ctx.prisma.user.findUnique({
         where: { id: ctx.session.user.id },
       });
-      if (!user) return throwTRPCError('Usuário não encontrado');
+      if (!user)throw throwTRPCError('Usuário não encontrado');
 
       // Verifica senha atual
       const isValid = await bcrypt.compare(input.currentPassword, user.password as string);
-      if (!isValid) return throwTRPCError('Senha atual incorreta');
+      if (!isValid)throw throwTRPCError('Senha atual incorreta');
 
       // Criptografa nova senha
       const hashedPassword = await bcrypt.hash(input.newPassword, 10);

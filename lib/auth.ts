@@ -11,6 +11,7 @@ import type { Session } from 'next-auth';
 import NextAuth from 'next-auth';
 import Credentials from 'next-auth/providers/credentials';
 import authConfig from './auth.config';
+import { throwTRPCError } from './utilsTRPC';
 
 const ACCESS_TOKEN_LIFETIME = 60 * 15; // 15 min
 const REFRESH_TOKEN_LIFETIME = 60 * 60 * 24 * 7; // 7 dias
@@ -32,7 +33,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         const prisma = getPrisma();
 
         if (!credentials?.email || !credentials?.password) {
-          throwTRPCError('Email e senha são obrigatórios.');
+          throw throwTRPCError('Email e senha são obrigatórios.');
         }
 
         const user = await prisma.user.findUnique({
@@ -40,12 +41,12 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         });
 
         if (!user || !user.password) {
-          throwTRPCError('Usuário não encontrado.');
+          throw throwTRPCError('Usuário não encontrado.');
         }
 
         const isValid = await bcrypt.compare(credentials.password as string, user.password);
 
-        if (!isValid) return throwTRPCError('Senha incorreta.');
+        if (!isValid) throw throwTRPCError('Senha incorreta.');
 
         return {
           id: user.id,
@@ -78,11 +79,11 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
 
         const isValid = await bcrypt.compare(code as string, record.token);
 
-        if (!isValid) return throwTRPCError('Invalid code');
+        if (!isValid) throw throwTRPCError('Invalid code');
 
         let user = await prisma.user.findUnique({ where: { email: email as string } });
 
-        if (user) return throwTRPCError('User exists');
+        if (user) throw throwTRPCError('User exists');
 
         if (!user) {
           user = await prisma.user.create({
@@ -114,7 +115,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         email: { label: 'Email', type: 'email' },
       },
       async authorize({ email }) {
-        if (!email) return throwTRPCError('Email é obrigatório');
+        if (!email) throw throwTRPCError('Email é obrigatório');
         const prisma = getPrisma();
 
         const code = Math.floor(100000 + Math.random() * 900000).toString();
@@ -178,7 +179,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         if (!dbUser || dbUser.tokenVersion !== token.tokenVersion) {
           token.error = 'InvalidSession';
           return token;
-          //throw new Error("Sessão inválida");
+          //throw throwTRPCError("Sessão inválida");
         }
 
         token.accessToken = randomUUID();
