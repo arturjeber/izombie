@@ -1,4 +1,5 @@
 import { isGameOn } from '@/lib/utilsSurvivor';
+import { throwTRPCError } from '@/lib/utilsTRPC';
 import { z } from 'zod';
 import { createTRPCRouter, publicProcedure } from '../trpc';
 

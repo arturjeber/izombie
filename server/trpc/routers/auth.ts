@@ -1,4 +1,5 @@
 // src/server/trpc/router/auth.ts
+import { throwTRPCError } from '@/lib/utilsTRPC';
 import bcrypt from 'bcrypt';
 import { z } from 'zod';
 import { createTRPCRouter, protectedProcedure, publicProcedure } from '../trpc';

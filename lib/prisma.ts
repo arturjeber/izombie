@@ -1,4 +1,5 @@
 import { PrismaClient } from '@prisma/client';
+import { throwTRPCError } from './utilsTRPC';
 
 let prisma: PrismaClient | null = null;
 

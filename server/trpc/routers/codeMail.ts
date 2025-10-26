@@ -1,3 +1,4 @@
+import { throwTRPCError } from '@/lib/utilsTRPC';
 import { EmailClient } from '@azure/communication-email';
 import { z } from 'zod';
 import { createTRPCRouter, publicProcedure } from '../trpc';
