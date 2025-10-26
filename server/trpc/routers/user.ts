@@ -24,7 +24,7 @@ export const userRouter = createTRPCRouter({
     )
     .mutation(({ ctx, input }) => {
       const userId = ctx.session?.user.id;
-      if (!userId)  throw throwTRPCError('Usuário não autenticado');
+      if (!userId) throw throwTRPCError('Usuário não autenticado');
 
       // Remover campos undefined para evitar erro no Prisma
       const data: any = {};
@@ -33,7 +33,7 @@ export const userRouter = createTRPCRouter({
       if (input.energy !== undefined) data.energy = input.energy;
 
       if (Object.keys(data).length === 0) {
-         throw throwTRPCError('Nenhum dado para atualizar');
+        throw throwTRPCError('Nenhum dado para atualizar');
       }
 
       return ctx.prisma.player.update({ where: { userId }, data });
@@ -132,8 +132,8 @@ export const userRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       const item = await ctx.prisma.mapItens.findUnique({ where: { id: input.id } });
-      if (!item)throw throwTRPCError('Item não encontrado');
-      if (item.quantity <= 0)throw throwTRPCError('Item sem quantidade disponível');
+      if (!item) throw throwTRPCError('Item não encontrado');
+      if (item.quantity <= 0) throw throwTRPCError('Item sem quantidade disponível');
 
       const itemAtualizado = await ctx.prisma.mapItens.update({
         where: { id: input.id },
@@ -157,7 +157,7 @@ export const userRouter = createTRPCRouter({
         where: { userId: ctx.session?.user.id },
         select: { energy: true },
       });
-      if (!player)throw throwTRPCError('PLayer not found');
+      if (!player) throw throwTRPCError('PLayer not found');
 
       const novaEnergia = Math.min(100, player.energy + energyValue);
 
@@ -174,15 +174,15 @@ export const userRouter = createTRPCRouter({
     }),
   getItem: publicProcedure.input(z.object({ id: z.number() })).mutation(async ({ ctx, input }) => {
     const item = await ctx.prisma.mapItens.findUnique({ where: { id: input.id } });
-    if (!item)throw throwTRPCError('Item não encontrado');
-    if (item.quantity <= 0)throw throwTRPCError('Item sem quantidade disponível');
+    if (!item) throw throwTRPCError('Item não encontrado');
+    if (item.quantity <= 0) throw throwTRPCError('Item sem quantidade disponível');
 
     // 3️⃣ Busca o player
     const player = await ctx.prisma.player.findUnique({
       where: { userId: ctx.session?.user.id },
       select: { id: true, limitItens: true },
     });
-    if (!player)throw throwTRPCError('Player não encontrado');
+    if (!player) throw throwTRPCError('Player não encontrado');
 
     // 3️⃣ Calcula o espaço já ocupado na backpack
     const inventario = await ctx.prisma.itens.findMany({
@@ -195,7 +195,7 @@ export const userRouter = createTRPCRouter({
     const espacoDisponivel = player.limitItens - espacoOcupado;
 
     if (espacoDisponivel < item.size) {
-       throw throwTRPCError('Espaço insuficiente na mochila');
+      throw throwTRPCError('Espaço insuficiente na mochila');
     }
 
     const itemAtualizado = await ctx.prisma.mapItens.update({
@@ -247,7 +247,7 @@ export const userRouter = createTRPCRouter({
       where: { userId: ctx.session?.user.id },
       select: { id: true },
     });
-    if (!player)throw throwTRPCError('Player não encontrado');
+    if (!player) throw throwTRPCError('Player não encontrado');
 
     // 2️⃣ Busca o item no inventário do player
     const itemInventario = await ctx.prisma.itens.findFirst({
@@ -256,8 +256,8 @@ export const userRouter = createTRPCRouter({
         id: input.id,
       },
     });
-    if (!itemInventario)throw throwTRPCError('Item não encontrado no inventário');
-    if (itemInventario.quantity <= 0)throw throwTRPCError('Item sem quantidade disponível');
+    if (!itemInventario) throw throwTRPCError('Item não encontrado no inventário');
+    if (itemInventario.quantity <= 0) throw throwTRPCError('Item sem quantidade disponível');
 
     // 3️⃣ Diminui 1 unidade do item no inventário do player
     const itemAtualizadoInventario = await ctx.prisma.itens.update({
@@ -271,7 +271,7 @@ export const userRouter = createTRPCRouter({
       orderBy: { timestamp: 'desc' },
       select: { mapId: true },
     });
-    if (!ultimaLocalizacao)throw throwTRPCError('Última localização não encontrada');
+    if (!ultimaLocalizacao) throw throwTRPCError('Última localização não encontrada');
 
     // 5️⃣ Adiciona o item na localização correspondente do mapa
     const itemMapa = await ctx.prisma.mapItens.findFirst({

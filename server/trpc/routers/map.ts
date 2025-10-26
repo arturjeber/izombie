@@ -60,7 +60,7 @@ export const mapRouter = createTRPCRouter({
       select: { id: true },
     });
 
-    if (!player)throw throwTRPCError('Jogador não encontrado.');
+    if (!player) throw throwTRPCError('Jogador não encontrado.');
 
     const pontos = await ctx.prisma.map.findMany({
       where: {
@@ -104,8 +104,8 @@ export const mapRouter = createTRPCRouter({
     )
     .mutation(async ({ ctx, input }) => {
       const item = await ctx.prisma.mapItens.findUnique({ where: { id: input.id } });
-      if (!item)throw throwTRPCError('Item não encontrado');
-      if (item.quantity <= 0)throw throwTRPCError('Item sem quantidade disponível');
+      if (!item) throw throwTRPCError('Item não encontrado');
+      if (item.quantity <= 0) throw throwTRPCError('Item sem quantidade disponível');
 
       const itemAtualizado = await ctx.prisma.mapItens.update({
         where: { id: input.id },
@@ -129,7 +129,7 @@ export const mapRouter = createTRPCRouter({
         where: { userId: ctx.session?.user.id },
         select: { energy: true },
       });
-      if (!player)throw throwTRPCError('PLayer not found');
+      if (!player) throw throwTRPCError('PLayer not found');
 
       const novaEnergia = Math.min(100, player.energy + energyValue);
 
@@ -173,7 +173,7 @@ export const mapRouter = createTRPCRouter({
         select: { id: true },
       });
 
-      if (!player)throw throwTRPCError('Jogador não encontrado.');
+      if (!player) throw throwTRPCError('Jogador não encontrado.');
 
       // 2️⃣ Define margem aproximada (300 m ≈ 0.0027°)
       const margin = 0.0027;

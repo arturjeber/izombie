@@ -21,13 +21,13 @@ export const emailRouter = createTRPCRouter({
       const result = { status: 'Succeeded' }; ///await poller.pollUntilDone();
 
       if (result.status !== 'Succeeded') {
-         throw throwTRPCError(`Falha no envio: ${result.status}`);
+        throw throwTRPCError(`Falha no envio: ${result.status}`);
       }
 
       return { success: true };
     } catch (e) {
       console.log('error', e);
-       throw throwTRPCError('Falha ao enviar o email');
+      throw throwTRPCError('Falha ao enviar o email');
     }
   }),
 });
