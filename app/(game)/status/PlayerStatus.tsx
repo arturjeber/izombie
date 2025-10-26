@@ -19,7 +19,7 @@ export const PlayerStatus = () => {
   const { data: session } = useSession();
 
   const [timeLeftQrCode, setTimeLeftQrCode] = useState<number>();
-  const [energy, setEnergy] = useState<number>(player?.energy ?? 100);
+  const [energy, setEnergy] = useState<number | undefined>(undefined);
 
   const isOn = isGameOn();
 
@@ -35,6 +35,7 @@ export const PlayerStatus = () => {
   };
   const stringEnergy = () => {
     if (!isOn) return '';
+    if (energy == undefined) return 'loading...';
   };
 
   const getSuperTitulo = () => {
@@ -56,46 +57,48 @@ export const PlayerStatus = () => {
       </>
     );
   };
-
   useEffect(() => {
     if (!player || !isOn) return;
 
-    const lastCheck =
-      player.lastPathId != null ? new Date(player.paths[0].timestamp) : new Date(launchDate);
+    const lastCheck = player.lastPathId
+      ? new Date(player.paths[player.paths.length - 1]?.timestamp ?? launchDate)
+      : new Date(launchDate);
 
-    const DECAY_NORMAL = 0.028; // % por minuto
-    const DECAY_FAST = 0.167; // % por minuto após 24h sem QR
-    const MAX_TIME = 24 * 60 * 60 * 1000; // 24h em ms
-    const timerTick = 1000; // 1s
+    const DECAY_NORMAL = 0.028 / 100; // fração por minuto (0.028%)
+    const DECAY_FAST = 0.167 / 100; // fração por minuto (0.167%)
+    const MAX_TIME = 24 * 60 * 60 * 1000; // 24h
 
-    const timer = setInterval(() => {
+    const calculateEnergy = () => {
       const elapsed = Date.now() - lastCheck.getTime();
       const minutesSinceCheck = elapsed / 60000;
 
-      setTimeLeftQrCode(Math.max(MAX_TIME - elapsed, 0));
+      let energyNow = player.energy ?? 100;
 
-      const decayRate = minutesSinceCheck < 24 * 60 ? DECAY_NORMAL : DECAY_FAST;
+      if (minutesSinceCheck <= 24 * 60) {
+        // fase normal
+        energyNow = energyNow * Math.pow(1 - DECAY_NORMAL, minutesSinceCheck);
+      } else {
+        // fase normal + fase acelerada
+        const minutesFast = minutesSinceCheck - 24 * 60;
+        const afterNormal = energyNow * Math.pow(1 - DECAY_NORMAL, 24 * 60);
+        energyNow = afterNormal * Math.pow(1 - DECAY_FAST, minutesFast);
+      }
 
-      setEnergy((prevEnergy) => {
-        console.log('JHHH', player.energy, prevEnergy);
-        if (prevEnergy !== player?.energy) prevEnergy = player.energy ?? 100;
+      energyNow = Math.max(0, energyNow);
+      const timeLeft = Math.max(MAX_TIME - elapsed, 0);
 
-        let newEnergy = prevEnergy - decayRate / 60;
+      setEnergy(energyNow);
+      setTimeLeftQrCode(timeLeft);
+    };
 
-        if (newEnergy < 0) newEnergy = 0;
-        if (newEnergy > 100) newEnergy = 100;
+    // cálculo imediato ao carregar
+    calculateEnergy();
 
-        // atualiza backend somente se houver diferença
-        if (Math.round(newEnergy) !== Math.round(prevEnergy)) {
-          updatePlayer.mutate({ energy: Math.round(newEnergy) });
-        }
-
-        return newEnergy;
-      });
-    }, timerTick);
+    // atualiza a cada 2 segundos (para interface suave)
+    const timer = setInterval(calculateEnergy, 2000);
 
     return () => clearInterval(timer);
-  }, [player, isOn]);
+  }, [player, isOn, launchDate]);
 
   return (
     <BoxBase
@@ -111,7 +114,7 @@ export const PlayerStatus = () => {
       />
       <UserBar
         titulo={'Energy'}
-        valor={Math.round(energy)}
+        valor={Math.round(energy || 100)}
         vDecor={'%'}
         tituloRight={stringEnergy()}
         st={'mb-5'}

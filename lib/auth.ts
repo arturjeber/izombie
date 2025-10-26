@@ -32,7 +32,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         const prisma = getPrisma();
 
         if (!credentials?.email || !credentials?.password) {
-         throwTRPCError('Email e senha são obrigatórios.');
+          throwTRPCError('Email e senha são obrigatórios.');
         }
 
         const user = await prisma.user.findUnique({
@@ -40,7 +40,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         });
 
         if (!user || !user.password) {
-         throwTRPCError('Usuário não encontrado.');
+          throwTRPCError('Usuário não encontrado.');
         }
 
         const isValid = await bcrypt.compare(credentials.password as string, user.password);

@@ -11,7 +11,7 @@ export const publicProcedure = t.procedure;
 
 export const protectedProcedure = t.procedure.use(({ ctx, next }) => {
   if (!ctx.session || !ctx.session.user) {
-   throwTRPCError('Usuário não autenticado');
+    throwTRPCError('Usuário não autenticado');
   }
   return next({
     ctx: {

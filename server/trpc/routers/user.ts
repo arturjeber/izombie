@@ -3,7 +3,6 @@ import { throwTRPCError } from '@/lib/utilsTRPC';
 import { z } from 'zod';
 import { createTRPCRouter, publicProcedure } from '../trpc';
 
-
 export const userRouter = createTRPCRouter({
   getAll: publicProcedure.query(({ ctx }) => ctx.prisma.user.findMany()),
 
@@ -34,7 +33,7 @@ export const userRouter = createTRPCRouter({
       if (input.energy !== undefined) data.energy = input.energy;
 
       if (Object.keys(data).length === 0) {
-       throwTRPCError('Nenhum dado para atualizar');
+        throwTRPCError('Nenhum dado para atualizar');
       }
 
       return ctx.prisma.player.update({ where: { userId }, data });
@@ -83,30 +82,24 @@ export const userRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       // Criar path e atualizar lastPathId do player na mesma transação
       const result = await ctx.prisma.$transaction(async (prisma) => {
+        // 1️⃣ Buscar último path do player
+        const player = await prisma.player.findUnique({
+          where: { id: input.playerId },
+          include: { lastPath: true }, // supondo que tenha relação lastPath
+        });
 
-				// 1️⃣ Buscar último path do player
-				const player = await prisma.player.findUnique({
-					where: { id: input.playerId },
-					include: { lastPath: true }, // supondo que tenha relação lastPath
-				});
-	
-				if (!player) return throwTRPCError('Player not found');
-	
-				// 2️⃣ Validar se a posição mudou
-				const lastPath = player.lastPath;
-				// Verificar se a distância é menor ou igual a 100m usando a função haversine existente
-				if (
-					lastPath &&
-					haversine(
-						lastPath.latitude,
-						lastPath.longitude,
-						input.latitude,
-						input.longitude
-					) <= 100
-				) {
-					return throwTRPCError('Player is already at this location or too close.');
-				}
-				
+        if (!player) return throwTRPCError('Player not found');
+
+        // 2️⃣ Validar se a posição mudou
+        const lastPath = player.lastPath;
+        // Verificar se a distância é menor ou igual a 100m usando a função haversine existente
+        if (
+          lastPath &&
+          haversine(lastPath.latitude, lastPath.longitude, input.latitude, input.longitude) <= 100
+        ) {
+          return throwTRPCError('Player is already at this location or too close.');
+        }
+
         // 1️⃣ Criar path
         const path = await prisma.path.create({
           data: {
@@ -202,7 +195,7 @@ export const userRouter = createTRPCRouter({
     const espacoDisponivel = player.limitItens - espacoOcupado;
 
     if (espacoDisponivel < item.size) {
-     throwTRPCError('Espaço insuficiente na mochila');
+      throwTRPCError('Espaço insuficiente na mochila');
     }
 
     const itemAtualizado = await ctx.prisma.mapItens.update({

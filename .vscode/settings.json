@@ -2,9 +2,9 @@
   // ⚡️ ESLint + Prettier automáticos
   "editor.formatOnSave": true,
   "editor.codeActionsOnSave": {
-		"source.fixAll.eslint": "explicit",
-		"source.organizeImports": "explicit"
-	},
+    "source.fixAll.eslint": "explicit",
+    "source.organizeImports": "explicit"
+  },
 
   // ⚙️ Formatação padrão
   "eslint.validate": ["javascript", "typescript", "typescriptreact", "javascriptreact"],
