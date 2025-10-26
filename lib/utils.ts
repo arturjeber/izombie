@@ -1,7 +1,7 @@
 import { isGameOn } from './utilsSurvivor';
 
 export const launchDate =
-  process.env.NODE_ENV === 'production' ? '2025-10-31T23:23:23.000Z' : '2025-10-26T13:18:00.000Z';
+  process.env.NODE_ENV === 'production' ? '2025-11-11T23:23:23.000Z' : '2025-10-26T13:18:00.000Z';
 
 export const msToHoursMinutes = (ms: number | null) => {
   if (ms == null) return null;
