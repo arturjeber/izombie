@@ -10,7 +10,9 @@ import './globals.css';
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Inicializa Smartlook apenas uma vez
-    Smartlook.init('1d2ce0412ca3552d319fc46a32e798a15ca4f141');
+    if (typeof window !== 'undefined' && window.location.hostname !== 'localhost') {
+      Smartlook.init('1d2ce0412ca3552d319fc46a32e798a15ca4f141');
+    }
   }, []);
 
   return (
