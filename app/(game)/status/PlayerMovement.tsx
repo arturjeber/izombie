@@ -62,6 +62,7 @@ export const PlayerMoviment = () => {
     <BoxBase
       titulo={loading ? 'loading' : (movePlayerTo?.name ?? 'Go to')}
       superTitulo={'move to another place'}
+      id="moveto"
     >
       {loading ? (
         ''

@@ -36,7 +36,7 @@ export default function MapaComponent({
   const door = trpc.user.openDoor.useMutation({
     onSuccess: () => {
       utils.user.loaduser.invalidate();
-      scrollTo('player-location');
+      scrollTo('mylocation');
     },
   });
 

@@ -1,7 +1,7 @@
 import { isGameOn } from './utilsSurvivor';
 
 export const launchDate =
-  process.env.NODE_ENV === 'production' ? '2025-11-11T23:23:23.000Z' : '2025-10-26T13:18:00.000Z';
+  process.env.NODE_ENV === 'production' ? '2025-11-11T23:23:23.000Z' : '2025-10-26T08:18:00.000Z';
 
 export const msToHoursMinutes = (ms: number | null) => {
   if (ms == null) return null;
@@ -53,3 +53,36 @@ export function haversine(lat1: number, lon1: number, lat2: number, lon2: number
   const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
   return R * c; // distância em metros
 }
+
+export const calculateEnergy = (player: any) => {
+  if (!player) return;
+  console.log('Calculating energy for player:', player);
+
+  const lastCheck = player.lastPathId
+    ? new Date(player.paths[player.paths.length - 1]?.timestamp ?? launchDate)
+    : new Date(launchDate);
+
+  const DECAY_NORMAL = 0.028 / 100; // fração por minuto (0.028%)
+  const DECAY_FAST = 0.167 / 100; // fração por minuto (0.167%)
+  const MAX_TIME = 24 * 60 * 60 * 1000; // 24h
+
+  const elapsed = Date.now() - lastCheck.getTime();
+  const minutesSinceCheck = elapsed / 60000;
+
+  let energyNow = player.energy ?? 100;
+
+  if (minutesSinceCheck <= 24 * 60) {
+    // fase normal
+    energyNow = energyNow * Math.pow(1 - DECAY_NORMAL, minutesSinceCheck);
+  } else {
+    // fase normal + fase acelerada
+    const minutesFast = minutesSinceCheck - 24 * 60;
+    const afterNormal = energyNow * Math.pow(1 - DECAY_NORMAL, 24 * 60);
+    energyNow = afterNormal * Math.pow(1 - DECAY_FAST, minutesFast);
+  }
+
+  energyNow = Math.max(0, energyNow);
+  const timeLeft = Math.max(MAX_TIME - elapsed, 0);
+
+  return { energyNow, timeLeft };
+};

@@ -25,7 +25,7 @@ export const PlayerLocation = () => {
   };
 
   return (
-    <BoxBase titulo={getTitulo()} superTitulo={'current locatoin'} id={'player-location'}>
+    <BoxBase titulo={getTitulo()} superTitulo={'current locatoin'} id={'mylocation'}>
       {!isOn && <Countdown targetDate={launchDate} />}
       <ListaItensMapa location={location} />
       <div className="mt-4 text-xl text-gray-300">

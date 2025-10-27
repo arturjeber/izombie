@@ -29,6 +29,49 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
           <Link href="http://izombie.live" className="logo-link">
             <span className={`${orbitron.className} logo-text`}>iZombie</span>
           </Link>
+
+          <div className={`menu-toggle ${menuOpen ? 'active' : ''}`} onClick={toggleMenu}>
+            <span></span>
+            <span></span>
+            <span></span>
+          </div>
+          <ul className={`nav-links ${menuOpen ? 'active' : ''}`}>
+            <li>
+              <Link href="#status" onClick={toggleMenu}>
+                status
+              </Link>
+            </li>
+            <li>
+              <Link href="#mylocation" onClick={toggleMenu}>
+                Current Location
+              </Link>
+            </li>
+            <li>
+              <Link href="#moveto" onClick={toggleMenu}>
+                Move to
+              </Link>
+            </li>
+            <li>
+              <Link href="#publicradio" onClick={toggleMenu}>
+                Public radio
+              </Link>
+            </li>
+            <li>
+              <Link href="#newbunker" onClick={toggleMenu}>
+                New bunker
+              </Link>
+            </li>
+            <li>
+              <Link href="#map" onClick={toggleMenu}>
+                Map
+              </Link>
+            </li>
+            <li>
+              <Link href="/settings" onClick={toggleMenu}>
+                Settings
+              </Link>
+            </li>
+          </ul>
         </div>
       </nav>
       {children}

@@ -12,7 +12,7 @@ export const MapaPublic = () => {
   const Mapa = dynamic(() => import('@/components/MapaComponent'), { ssr: false });
 
   return (
-    <BoxBase superTitulo="known locations" titulo="Map">
+    <BoxBase superTitulo="known locations" titulo="Map" id="map">
       <Mapa pontos={pontos} />
     </BoxBase>
   );

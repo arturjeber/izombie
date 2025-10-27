@@ -171,6 +171,9 @@ export default function HomePage() {
             <li>
               <a href="#contact">Contact</a>
             </li>
+            <li>
+              <a href="/login">Signin</a>
+            </li>
           </ul>
         </div>
       </nav>

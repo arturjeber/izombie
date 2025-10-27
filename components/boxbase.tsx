@@ -6,9 +6,10 @@ interface BoxBaseProps {
   children?: React.ReactNode;
   kills?: number | null;
   id?: string;
+  icon?: React.ReactNode;
 }
 
-export function BoxBase({ superTitulo, titulo, children, kills = null, id = '' }: BoxBaseProps) {
+export function BoxBase({ superTitulo, titulo, children, kills = null, id, icon }: BoxBaseProps) {
   return (
     <section className="about w-full" id={id}>
       <div className="box ml-2 mr-2 h-full">

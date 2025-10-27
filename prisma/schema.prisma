@@ -49,18 +49,20 @@ model VerificationToken {
   @@unique([identifier, token])
 }
 
-model MessagesHome {
+model Messages {
   id      Int    @id @default(autoincrement())
   name    String
   email   String
   message String
+	origen	String @default("home")
 }
 
 model Player {
   id               	Int        @id @default(autoincrement())
   status           	Int        @default(0) // 0 -> Survivor, 1 -> Zombie , 2 -> Observador
   limitItens	    	Int        @default(4)  
-	energy 					 	Int				@default(100)
+	energy 					 	Int				 @default(100)
+	strikes						Int				 @default(0)
 	
 	lastPathId       	Int?        @unique // último Path
   lastPath         	Path?       @relation("LastPath", fields: [lastPathId], references: [id])

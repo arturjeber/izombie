@@ -6,7 +6,7 @@ import { useSession } from 'next-auth/react';
 import { useEffect, useState } from 'react';
 
 import { trpc } from '@/lib/trpcClient';
-import { launchDate, msToHoursMinutes } from '@/lib/utils';
+import { calculateEnergy, launchDate, msToHoursMinutes } from '@/lib/utils';
 import { isGameOn } from '@/lib/utilsSurvivor';
 
 import { Backpack } from '@/components/Backpack';
@@ -14,7 +14,6 @@ import Image from 'next/image';
 
 export const PlayerStatus = () => {
   const { data: player } = trpc.user.loaduser.useQuery();
-  const updatePlayer = trpc.user.update.useMutation();
 
   const { data: session } = useSession();
 
@@ -60,42 +59,16 @@ export const PlayerStatus = () => {
   useEffect(() => {
     if (!player || !isOn) return;
 
-    const lastCheck = player.lastPathId
-      ? new Date(player.paths[player.paths.length - 1]?.timestamp ?? launchDate)
-      : new Date(launchDate);
-
-    const DECAY_NORMAL = 0.028 / 100; // fração por minuto (0.028%)
-    const DECAY_FAST = 0.167 / 100; // fração por minuto (0.167%)
-    const MAX_TIME = 24 * 60 * 60 * 1000; // 24h
-
-    const calculateEnergy = () => {
-      const elapsed = Date.now() - lastCheck.getTime();
-      const minutesSinceCheck = elapsed / 60000;
-
-      let energyNow = player.energy ?? 100;
-
-      if (minutesSinceCheck <= 24 * 60) {
-        // fase normal
-        energyNow = energyNow * Math.pow(1 - DECAY_NORMAL, minutesSinceCheck);
-      } else {
-        // fase normal + fase acelerada
-        const minutesFast = minutesSinceCheck - 24 * 60;
-        const afterNormal = energyNow * Math.pow(1 - DECAY_NORMAL, 24 * 60);
-        energyNow = afterNormal * Math.pow(1 - DECAY_FAST, minutesFast);
-      }
-
-      energyNow = Math.max(0, energyNow);
-      const timeLeft = Math.max(MAX_TIME - elapsed, 0);
-
-      setEnergy(energyNow);
-      setTimeLeftQrCode(timeLeft);
-    };
-
+    console.log('player status:', player);
     // cálculo imediato ao carregar
-    calculateEnergy();
+    const r = calculateEnergy(player);
+
+    if (!r) return;
+    setEnergy(r.energyNow);
+    setTimeLeftQrCode(r.timeLeft);
 
     // atualiza a cada 2 segundos (para interface suave)
-    const timer = setInterval(calculateEnergy, 2000);
+    const timer = setInterval(calculateEnergy, 60 * 1000);
 
     return () => clearInterval(timer);
   }, [player, isOn, launchDate]);
@@ -105,6 +78,7 @@ export const PlayerStatus = () => {
       superTitulo={getSuperTitulo()}
       titulo={session?.user?.name || 'loading...'}
       kills={player?._count.mortes || null}
+      id="status"
     >
       <UserBar
         titulo={'Time left to scan'}

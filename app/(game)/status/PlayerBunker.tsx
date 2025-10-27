@@ -57,7 +57,7 @@ export const PlayerBunker = () => {
   }
 
   return (
-    <BoxBase titulo={'New Bunker'} superTitulo={'create hidden location'}>
+    <BoxBase titulo={'New Bunker'} superTitulo={'create hidden location'} id="newbunker">
       <div className="text-2xl text-center mt-4">
         {error && <p className="text-red-500">{error}</p>}
       </div>

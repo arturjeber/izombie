@@ -1,5 +1,6 @@
-import { haversine } from '@/lib/utils';
+import { calculateEnergy, haversine } from '@/lib/utils';
 import { throwTRPCError } from '@/lib/utilsTRPC';
+import bcrypt from 'bcryptjs';
 import { z } from 'zod';
 import { createTRPCRouter, publicProcedure } from '../trpc';
 
@@ -14,11 +15,9 @@ export const userRouter = createTRPCRouter({
     .input(z.object({ userId: z.string() }))
     .mutation(({ ctx, input }) => ctx.prisma.player.create({ data: input })),
 
-  update: publicProcedure
+  updateEnergy: publicProcedure
     .input(
       z.object({
-        name: z.string().optional(),
-        password: z.string().optional(),
         energy: z.number().optional(),
       }),
     )
@@ -26,17 +25,49 @@ export const userRouter = createTRPCRouter({
       const userId = ctx.session?.user.id;
       if (!userId) throw throwTRPCError('Usuário não autenticado');
 
-      // Remover campos undefined para evitar erro no Prisma
-      const data: any = {};
-      if (input.name !== undefined) data.name = input.name;
-      if (input.password !== undefined) data.password = input.password;
-      if (input.energy !== undefined) data.energy = input.energy;
+      if (input.energy !== undefined) {
+        return ctx.prisma.player.update({ where: { userId }, data: { energy: input.energy } });
+      } else throw throwTRPCError('Nenhum dado para atualizar');
+    }),
+  updateUser: publicProcedure
+    .input(
+      z.object({
+        name: z.string().optional(),
+        password: z.string().optional(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const userId = ctx.session?.user.id;
+      if (!userId) throw throwTRPCError('Usuário não autenticado');
 
-      if (Object.keys(data).length === 0) {
-        throw throwTRPCError('Nenhum dado para atualizar');
+      // 🔍 busca o usuário atual
+      const user = await ctx.prisma.user.findUnique({
+        where: { id: userId },
+        select: { id: true, password: true, tokenVersion: true },
+      });
+
+      if (!user) {
+        throw new Error('Usuário não encontrado.');
+      }
+      // Remover campos undefined para evitar erro no Prisma
+      if (input.name !== undefined)
+        ctx.prisma.user.update({ where: { id: userId }, data: { name: input.name } });
+
+      if (input.password !== undefined) {
+        // 🔑 gera hash da nova senha
+        const hashed = await bcrypt.hash(input.password, 10);
+
+        // 💾 atualiza senha e incrementa tokenVersion
+        const r = await ctx.prisma.user.update({
+          where: { id: userId },
+          data: {
+            password: hashed,
+            tokenVersion: user.tokenVersion + 1,
+          },
+        });
       }
 
-      return ctx.prisma.player.update({ where: { userId }, data });
+      return { success: true };
     }),
   delete: publicProcedure.input(z.object({ id: z.string() })).mutation(async ({ ctx, input }) => {
     await ctx.prisma.user.delete({ where: { id: input.id } });
@@ -100,6 +131,8 @@ export const userRouter = createTRPCRouter({
           throw throwTRPCError('Player is already at this location or too close.');
         }
 
+        const r = calculateEnergy(player);
+
         // 1️⃣ Criar path
         const path = await prisma.path.create({
           data: {
@@ -115,7 +148,10 @@ export const userRouter = createTRPCRouter({
         // 2️⃣ Atualizar lastPathId do player
         await prisma.player.update({
           where: { id: input.playerId },
-          data: { lastPathId: path.id },
+          data: {
+            lastPathId: path.id,
+            energy: r?.energyNow,
+          },
         });
 
         return path; // retorna o path criado

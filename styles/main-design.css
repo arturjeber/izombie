@@ -19,6 +19,10 @@ body {
   font-weight: 400;
 }
 
+[id] {
+  scroll-margin-top: 80px; /* espaço entre o topo e o elemento ancorado */
+}
+
 /* Animated background with hexagon pattern */
 .grid-bg {
   position: fixed;
@@ -1208,7 +1212,7 @@ footer {
 }
 
 /* Responsive */
-@media (max-width: 768px) {
+@media (max-width: 6000px) {
   nav {
     padding: 15px 20px;
   }

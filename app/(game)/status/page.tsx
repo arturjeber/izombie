@@ -16,8 +16,8 @@ export default function StatusPage() {
       <PlayerLocation />
       {isGameOn() && <PlayerMoviment />}
       <RadioPublic />
-      <MapaPublic />
       <PlayerBunker />
+      <MapaPublic />
     </div>
   );
 }

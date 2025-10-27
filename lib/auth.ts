@@ -147,7 +147,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
     }),
   ],
   callbacks: {
-    async jwt({ token, user }) {
+    async jwt({ token, user, trigger, session }) {
       const now = Math.floor(Date.now() / 1000);
 
       if (user) {
@@ -157,6 +157,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         };
 
         token.userId = typedUser.id;
+        token.name = typedUser.name; // ✅ Adicione esta linha
         token.accessToken = randomUUID();
         token.refreshToken = randomUUID();
         token.accessTokenExpires = now + ACCESS_TOKEN_LIFETIME;
@@ -165,6 +166,12 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         //campos adicionais
         token.tokenVersion = typedUser.tokenVersion ?? 0;
         token.emailVerified = typedUser.emailVerified ?? null;
+      }
+
+      // 🔹 Quando a sessão é atualizada via useSession().update()
+      if (trigger === 'update' && session?.user) {
+        console.log('aaaaa', session.user);
+        token.name = session.user.name ?? token.name;
       }
 
       // Refresh do token se expirou
@@ -198,8 +205,8 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       return {
         user: {
           id: token.userId as string,
-          name: session.user?.name ?? null,
-          email: session.user?.email ?? null,
+          name: token.name ?? null,
+          email: token.email ?? null,
           image: session.user?.image ?? null,
           emailVerified: (token.emailVerified as string) ?? null,
           tokenVersion: (token.tokenVersion as number) ?? 0,
