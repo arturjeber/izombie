@@ -245,7 +245,7 @@ nav.scrolled {
 
 .nav-links {
   display: flex;
-  gap: 30px;
+  /* gap: 30px;	*/
   list-style: none;
 }
 
@@ -1212,7 +1212,7 @@ footer {
 }
 
 /* Responsive */
-@media (max-width: 6000px) {
+@media (max-width: 600px) {
   nav {
     padding: 15px 20px;
   }
