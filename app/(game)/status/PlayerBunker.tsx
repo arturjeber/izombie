@@ -1,21 +1,27 @@
 'use client';
 
 import { BoxBase } from '@/components/boxbase';
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 
 import { trpc } from '@/lib/trpcClient';
 import { getCurrentLocation } from '@/lib/utils';
 import dynamic from 'next/dynamic';
 
+const Mapa = dynamic(() => import('@/components/MapaComponent'), { ssr: false });
+
 export const PlayerBunker = () => {
-  const [pontos, setPontos] = useState<any>([]);
+  const [pontos, setPontos] = useState<any>([0, 0]);
   const [error, setError] = useState<any>([]);
   const [showMap, setShowMap] = useState<boolean>(false);
 
   const utils = trpc.useUtils(); // acesso às funções de cache
 
   const { data: player } = trpc.user.loaduser.useQuery();
-  const location = player?.paths?.[0]?.map;
+
+  const location = useMemo(() => {
+    console.log('player paths no bunker', player?.paths);
+    return player?.paths?.[0]?.map ?? { latitude: 0, longitude: 0 };
+  }, [player?.paths]);
 
   const createBunker = trpc.map.createBunker.useMutation({
     onSuccess: () => {
@@ -25,8 +31,6 @@ export const PlayerBunker = () => {
       utils.map.getAllByUser.invalidate();
     },
   });
-
-  const Mapa = dynamic(() => import('@/components/MapaComponent'), { ssr: false });
 
   const checkLocation = async () => {
     const location = await getCurrentLocation();
@@ -63,7 +67,7 @@ export const PlayerBunker = () => {
       </div>
       {!showMap ? (
         <div className="mt-4">
-          <button onClick={checkLocation} className="cta-button cta-primary w-full">
+          <button onClick={checkLocation} className="submit-btn cta-primary w-full">
             Check Location
           </button>
         </div>

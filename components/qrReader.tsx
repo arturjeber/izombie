@@ -1,6 +1,7 @@
 'use client';
 
 import { BrowserQRCodeReader, IScannerControls } from '@zxing/browser';
+import { BarcodeFormat, DecodeHintType } from '@zxing/library';
 import { useEffect, useRef, useState } from 'react';
 
 interface QRCameraScannerProps {
@@ -53,14 +54,16 @@ export default function QRCameraScanner({ onScanResult }: QRCameraScannerProps) 
         await videoRef.current.play();
       }
 
-      //const hints = new Map();
-      //hints.set(DecodeHintType.TRY_HARDER, true);
+      const hints = new Map();
+      hints.set(DecodeHintType.POSSIBLE_FORMATS, [BarcodeFormat.QR_CODE]);
+      hints.set(DecodeHintType.TRY_HARDER, true);
 
       const codeReader = new BrowserQRCodeReader();
       controlsRef.current = await codeReader.decodeFromVideoDevice(
         selectedCamera,
         videoRef.current,
         (result: any) => {
+          console.log('jjjj', result);
           if (result) {
             setScanSuccess(true);
             onScanResult(result.getText());

@@ -59,7 +59,6 @@ export const PlayerStatus = () => {
   useEffect(() => {
     if (!player || !isOn) return;
 
-    console.log('player status:', player);
     // cálculo imediato ao carregar
     const r = calculateEnergy(player);
 

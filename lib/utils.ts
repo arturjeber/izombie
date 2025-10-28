@@ -56,7 +56,6 @@ export function haversine(lat1: number, lon1: number, lat2: number, lon2: number
 
 export const calculateEnergy = (player: any) => {
   if (!player) return;
-  console.log('Calculating energy for player:', player);
 
   const lastCheck = player.lastPathId
     ? new Date(player.paths[player.paths.length - 1]?.timestamp ?? launchDate)

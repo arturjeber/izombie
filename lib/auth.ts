@@ -19,7 +19,7 @@ const REFRESH_TOKEN_LIFETIME = 60 * 60 * 24 * 7; // 7 dias
 const emailClient = new EmailClient(process.env.AZURE_EMAIL_CONNECTION_STRING ?? '');
 
 export const { auth, handlers, signIn, signOut } = NextAuth({
-  trustHost: true, // importante para Azure
+  trustHost: true,
   adapter: process.env.DATABASE_URL ? PrismaAdapter(getPrisma()) : undefined,
   ...authConfig,
   providers: [
@@ -45,7 +45,6 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         }
 
         const isValid = await bcrypt.compare(credentials.password as string, user.password);
-
         if (!isValid) throw throwTRPCError('Senha incorreta.');
 
         return {
@@ -64,26 +63,23 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       credentials: {
         email: { label: 'Email', type: 'email' },
         code: { label: 'Código', type: 'text' },
-        name: { label: 'Código', type: 'text' },
-        pass: { label: 'Código', type: 'password' },
+        name: { label: 'Nome', type: 'text' },
+        pass: { label: 'Senha', type: 'password' },
       },
       async authorize({ email, name, pass, code }) {
         const prisma = getPrisma();
 
         const record = await prisma.verificationToken.findFirst({
           where: { identifier: email as string },
-          orderBy: { expires: 'desc' }, // ← pega o mais recente
+          orderBy: { expires: 'desc' },
         });
 
         if (!record) return null;
-
         const isValid = await bcrypt.compare(code as string, record.token);
-
-        if (!isValid) throw throwTRPCError('Invalid code');
+        if (!isValid) throw throwTRPCError('Código inválido.');
 
         let user = await prisma.user.findUnique({ where: { email: email as string } });
-
-        if (user) throw throwTRPCError('User exists');
+        if (user) throw throwTRPCError('Usuário já existe.');
 
         if (!user) {
           user = await prisma.user.create({
@@ -124,11 +120,10 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           data: {
             identifier: email as string,
             token: await bcrypt.hash(code, 10),
-            expires: new Date(Date.now() + 10 * 60 * 1000), // 10 minutos
+            expires: new Date(Date.now() + 10 * 60 * 1000),
           },
         });
 
-        // envia o e-mail via Azure
         const message = {
           senderAddress: process.env.EMAIL_FROM ?? '',
           content: {
@@ -146,6 +141,7 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
       },
     }),
   ],
+
   callbacks: {
     async jwt({ token, user, trigger, session }) {
       const now = Math.floor(Date.now() / 1000);
@@ -156,25 +152,28 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
           emailVerified: Date | null;
         };
 
-        token.userId = typedUser.id;
-        token.name = typedUser.name; // ✅ Adicione esta linha
+        const prisma = getPrisma();
+        const player = await prisma.player.findUnique({
+          where: { userId: user.id },
+          select: { id: true },
+        });
+
+        token.userId = typedUser.id!;
+        token.name = typedUser.name;
         token.accessToken = randomUUID();
         token.refreshToken = randomUUID();
         token.accessTokenExpires = now + ACCESS_TOKEN_LIFETIME;
         token.refreshTokenExpires = now + REFRESH_TOKEN_LIFETIME;
 
-        //campos adicionais
         token.tokenVersion = typedUser.tokenVersion ?? 0;
         token.emailVerified = typedUser.emailVerified ?? null;
+        token.playerId = player?.id ?? null;
       }
 
-      // 🔹 Quando a sessão é atualizada via useSession().update()
       if (trigger === 'update' && session?.user) {
-        console.log('aaaaa', session.user);
         token.name = session.user.name ?? token.name;
       }
 
-      // Refresh do token se expirou
       const accessTokenExpires = token.accessTokenExpires as number;
       if (accessTokenExpires && now > accessTokenExpires) {
         const prisma = getPrisma();
@@ -186,7 +185,6 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         if (!dbUser || dbUser.tokenVersion !== token.tokenVersion) {
           token.error = 'InvalidSession';
           return token;
-          //throw throwTRPCError("Sessão inválida");
         }
 
         token.accessToken = randomUUID();
@@ -201,15 +199,15 @@ export const { auth, handlers, signIn, signOut } = NextAuth({
         session.error = 'InvalidSession';
       }
 
-      // Retorna um objeto literal tipado para evitar problemas de TS
       return {
         user: {
           id: token.userId as string,
           name: token.name ?? null,
           email: token.email ?? null,
           image: session.user?.image ?? null,
-          emailVerified: (token.emailVerified as string) ?? null,
+          emailVerified: (token.emailVerified as Date) ?? null,
           tokenVersion: (token.tokenVersion as number) ?? 0,
+          playerId: (token.playerId as number) ?? null,
         },
         accessToken: token.accessToken as string,
         accessTokenExpires: token.accessTokenExpires as number,

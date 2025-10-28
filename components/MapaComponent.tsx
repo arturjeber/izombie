@@ -27,6 +27,7 @@ export default function MapaComponent({
   center = [-33.45, -70.65],
   zoom = 12,
 }: MapaProps) {
+  console.log('pontos no mapa component', pontos);
   const utils = trpc.useUtils(); // acesso às funções de cache
   const scrollTo = useScrollTo();
 

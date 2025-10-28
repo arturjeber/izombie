@@ -14,6 +14,7 @@ export const PlayerMoviment = () => {
   const { data: player } = trpc.user.loaduser.useQuery();
   const door = trpc.user.openDoor.useMutation();
   const map = trpc.map.getLocationsByScan.useMutation();
+  const qrAdd = trpc.qrRead.qrAdd.useMutation();
 
   const utils = trpc.useUtils();
 
@@ -41,7 +42,16 @@ export const PlayerMoviment = () => {
   const newLocation = useCallback(
     async (qrInfo: string) => {
       const location = await getCurrentLocation();
+
+      qrAdd.mutateAsync({
+        lat: location.latitude,
+        long: location.longitude,
+        info: qrInfo,
+        accu: location.accuracy,
+      });
+
       const t = await map.mutateAsync({ lat: location.latitude, long: location.longitude });
+
       if (t) {
         setMovePlayerTo(t[0]);
         setLocation(location);

@@ -4,7 +4,7 @@ import { trpc } from '@/lib/trpcClient';
 export const Backpack = ({ itens, limit }: { itens: any; limit: number }) => {
   const utils = trpc.useUtils(); // acesso às funções de cache
 
-  const eat = trpc.user.eat.useMutation({
+  const eat = trpc.user.eatBackpack.useMutation({
     onSuccess: () => utils.user.loaduser.invalidate(),
   });
 

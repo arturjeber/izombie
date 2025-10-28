@@ -71,6 +71,11 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 Settings
               </Link>
             </li>
+            <li>
+              <Link href="/buy" onClick={toggleMenu}>
+                Buy
+              </Link>
+            </li>
           </ul>
         </div>
       </nav>

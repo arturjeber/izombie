@@ -113,6 +113,7 @@ export const userRouter = createTRPCRouter({
     .mutation(async ({ ctx, input }) => {
       // Criar path e atualizar lastPathId do player na mesma transação
       const result = await ctx.prisma.$transaction(async (prisma) => {
+
         // 1️⃣ Buscar último path do player
         const player = await prisma.player.findUnique({
           where: { id: input.playerId },
@@ -172,6 +173,54 @@ export const userRouter = createTRPCRouter({
       if (item.quantity <= 0) throw throwTRPCError('Item sem quantidade disponível');
 
       const itemAtualizado = await ctx.prisma.mapItens.update({
+        where: { id: input.id },
+        data: {
+          quantity: {
+            decrement: 1, // diminui em 1 unidade
+          },
+        },
+      });
+
+      let energyValue = 0;
+      try {
+        const efeitoData = JSON.parse(item.effect);
+
+        if (efeitoData.energy) energyValue = Number(efeitoData.energy);
+      } catch (err) {
+        console.error('Erro ao ler efeito:', err);
+      }
+
+      const player = await ctx.prisma.player.findUnique({
+        where: { userId: ctx.session?.user.id },
+        select: { energy: true },
+      });
+      if (!player) throw throwTRPCError('PLayer not found');
+
+      const novaEnergia = Math.min(100, player.energy + energyValue);
+
+      await ctx.prisma.player.update({
+        where: { userId: ctx.session?.user.id },
+        data: { energy: novaEnergia },
+      });
+
+      return {
+        item: itemAtualizado,
+        energiaGanha: energyValue,
+        energiaFinal: novaEnergia,
+      };
+    }),
+	eatBackpack: publicProcedure
+    .input(
+      z.object({
+        id: z.number(),
+      }),
+    )
+    .mutation(async ({ ctx, input }) => {
+      const item = await ctx.prisma.itens.findUnique({ where: { id: input.id } });
+      if (!item) throw throwTRPCError('Item não encontrado');
+      if (item.quantity <= 0) throw throwTRPCError('Item sem quantidade disponível');
+
+      const itemAtualizado = await ctx.prisma.itens.update({
         where: { id: input.id },
         data: {
           quantity: {
@@ -331,6 +380,7 @@ export const userRouter = createTRPCRouter({
           name: itemInventario.name,
           size: itemInventario.size,
           effect: itemInventario.effect,
+					kind: itemInventario.kind,
           quantity: 1,
         },
       });
