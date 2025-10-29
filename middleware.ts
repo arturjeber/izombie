@@ -22,7 +22,7 @@ export default auth(async function middleware(req: NextRequest & { auth?: any })
     path.startsWith('/login') ||
     path.startsWith('/onboarding') ||
     path.startsWith('/join') ||
-    path.startsWith('/open') ||
+    path.startsWith('/buy') ||
     path.startsWith('/blog') ||
     path.startsWith('/trpc') ||
     path.startsWith('/_next') ||
