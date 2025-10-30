@@ -5,7 +5,6 @@ import { PlayerLocation } from './PlayerLocation';
 import { PlayerMoviment } from './PlayerMovement';
 import { PlayerStatus } from './PlayerStatus';
 
-import TermsOfUse from '@/components/terms';
 import { MapaPublic } from './MapaPublic';
 import { PlayerBunker } from './PlayerBunker';
 import RadioPublic from './RadioPublic';
