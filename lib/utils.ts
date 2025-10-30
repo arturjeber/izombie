@@ -21,7 +21,6 @@ export const gameStatus = () => {
  * Retorna uma Promise que resolve com { latitude, longitude, accuracy, timestamp }.
  */
 
-	
 export function getCurrentLocation(): Promise<{
   latitude: number;
   longitude: number;
@@ -58,12 +57,13 @@ export function haversine(lat1: number, lon1: number, lat2: number, lon2: number
 
 export const calculateEnergy = (player: any) => {
   if (!player) return;
-	
-	if (player.status !== 0) return {energyNow: 0, timeLeft: 0}; // apenas sobreviventes têm energia
 
-  const lastCheck = player.paths && player.paths.length > 0
-    ? new Date(player.paths[player.paths.length - 1]?.timestamp ?? launchDate)
-    : new Date(launchDate);
+  if (player.status !== 0) return { energyNow: 0, timeLeft: 0 }; // apenas sobreviventes têm energia
+
+  const lastCheck =
+    player.paths && player.paths.length > 0
+      ? new Date(player.paths[player.paths.length - 1]?.timestamp ?? launchDate)
+      : new Date(launchDate);
 
   const DECAY_NORMAL = 0.028 / 100; // fração por minuto (0.028%)
   const DECAY_FAST = 0.167 / 100; // fração por minuto (0.167%)

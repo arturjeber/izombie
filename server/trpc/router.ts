@@ -14,7 +14,7 @@ export const appRouter = createTRPCRouter({
   email: emailRouter,
   map: mapRouter,
   chat: chatRouter,
-	qrRead: qrRouter,
+  qrRead: qrRouter,
 });
 
 export type AppRouter = typeof appRouter;
