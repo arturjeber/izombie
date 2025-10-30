@@ -13,7 +13,14 @@ import { Backpack } from '@/components/Backpack';
 import Image from 'next/image';
 
 export const PlayerStatus = () => {
+  const utils = trpc.useUtils(); // acesso às funções de cache
+
   const { data: player } = trpc.user.loaduser.useQuery();
+  const updateStatus = trpc.user.updateStatus.useMutation({
+    onSuccess: () => {
+      utils.user.invalidate();
+    },
+  });
 
   const { data: session } = useSession();
 
@@ -59,6 +66,7 @@ export const PlayerStatus = () => {
   useEffect(() => {
     if (!player || !isOn) return;
 
+    console.log('h');
     // cálculo imediato ao carregar
     const r = calculateEnergy(player);
 
@@ -67,11 +75,30 @@ export const PlayerStatus = () => {
     setTimeLeftQrCode(r.timeLeft);
 
     // atualiza a cada 2 segundos (para interface suave)
-    const timer = setInterval(calculateEnergy, 60 * 1000);
+    const timer = setInterval(
+      () => {
+        const a = calculateEnergy(player);
+      },
+      (60 / 60) * 1000,
+    );
 
     return () => clearInterval(timer);
   }, [player, isOn, launchDate]);
 
+  useEffect(() => {
+    if (energy == 0 && player?.status == 0) {
+      updateStatus.mutate({ status: 1, energy: 0 }); // transforma em zumbi se energia zerar
+    }
+  }, [energy]);
+
+  /*
+	const updateStatus = trpc.user.updateStatus.useMutation();
+	if(energyNow === 0) {
+		const updateStatus = trpc.user.updateStatus.useMutation();
+		updateStatus.mutate({ status: 1 }); // transforma em zumbi se energia zerar
+	}
+	
+	/**/
   return (
     <BoxBase
       superTitulo={getSuperTitulo()}

@@ -6,7 +6,8 @@ export const ListaItensMapa = ({ location }: { location: any }) => {
   const [error, setError] = useState<string>('');
   const utils = trpc.useUtils(); // acesso às funções de cache
 
-  const itens = location?.itens;
+  const { data: player } = trpc.user.loaduser.useQuery();
+
   const eat = trpc.user.eat.useMutation({
     onSuccess: () => utils.user.loaduser.invalidate(),
     onError: () => utils.user.loaduser.invalidate(),
@@ -26,8 +27,19 @@ export const ListaItensMapa = ({ location }: { location: any }) => {
   };
 
   const eatItem = async (id: number) => {
-    eat.mutateAsync({ id });
+    eat.mutateAsync({ id, contaminate: player?.status === 1 });
   };
+
+  const filterItens = (item: any) => {
+    if (!player) return false;
+    const playerStatus = player.status;
+    if (item.quantity <= 0) return false;
+    if (item.kind !== 0 && playerStatus == 1) return false;
+    if ((item.effect || '')?.includes('contaminate') && playerStatus == 1) return false;
+
+    return true;
+  };
+  const itens = location?.itens?.filter(filterItens);
 
   return (
     <>
@@ -38,31 +50,29 @@ export const ListaItensMapa = ({ location }: { location: any }) => {
       <div>
         {!itens || itens.length == 0
           ? 'No itens avaiable'
-          : itens
-              ?.filter((a: any) => a.quantity > 0)
-              .sort(ordemItens)
-              .map((a: any, i: number) => {
-                return (
-                  <div key={i} className="mb-2">
-                    <span className="item-title">
-                      {' '}
-                      # {a?.name} ___ {a.quantity}{' '}
-                    </span>
-
+          : itens.sort(ordemItens).map((a: any, i: number) => {
+              return (
+                <div key={i} className="mb-2">
+                  <span className="item-title">
+                    {' '}
+                    # {a?.name} ___ {a.quantity}{' '}
+                  </span>
+                  {player?.status === 0 && (
                     <button
                       onClick={() => getItem(a.id)}
                       className="cta-button2 cta-secondary ml-3"
                     >
                       get
                     </button>
-                    {a.kind == 0 && (
-                      <button onClick={() => eatItem(a.id)} className="cta-button2 cta-secondary">
-                        eat
-                      </button>
-                    )}
-                  </div>
-                );
-              })}
+                  )}
+                  {a.kind == 0 && (
+                    <button onClick={() => eatItem(a.id)} className="cta-button2 cta-secondary">
+                      {player?.status === 0 ? 'eat' : 'contaminate'}
+                    </button>
+                  )}
+                </div>
+              );
+            })}
       </div>
     </>
   );

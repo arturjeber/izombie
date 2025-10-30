@@ -15,20 +15,88 @@ export const userRouter = createTRPCRouter({
     .input(z.object({ userId: z.string() }))
     .mutation(({ ctx, input }) => ctx.prisma.player.create({ data: input })),
 
-  updateEnergy: publicProcedure
+  updateStatus: publicProcedure
     .input(
       z.object({
         energy: z.number().optional(),
+        status: z.number().optional(),
       }),
     )
-    .mutation(({ ctx, input }) => {
-      const userId = ctx.session?.user.id;
-      if (!userId) throw throwTRPCError('Usuário não autenticado');
+    .mutation( async ({ ctx, input }) => {
+			const userId = ctx.session?.user.id;
+			if (!userId) throw throwTRPCError('Usuário não autenticado');
+		
+			// Se quiser permitir atualizar mais de um campo ao mesmo tempo:
+			const data: Record<string, any> = {};
+		
+			if (input.energy !== undefined) data.energy = input.energy;
+			if (input.status !== undefined) data.status = input.status;
+		
+			if (Object.keys(data).length === 0) {
+				throw throwTRPCError('Nenhum dado para atualizar');
+			}
+		
+			const player =  await ctx.prisma.player.update({
+				where: { userId },
+				data,
+				select: {  id: true,
+					paths: {
+						orderBy: { timestamp: 'desc' },
+						take: 1,
+					},
+				},
+			});
 
-      if (input.energy !== undefined) {
-        return ctx.prisma.player.update({ where: { userId }, data: { energy: input.energy } });
-      } else throw throwTRPCError('Nenhum dado para atualizar');
-    }),
+			console.log('player after update status', player);
+
+			if (input.status !== undefined && input.status === 1) {
+				// Busca os itens na mochila do jogador
+				const itens = await ctx.prisma.itens.findMany({
+					where: { playerId: player.id },
+				});
+	
+				if (itens.length > 0) {
+					await ctx.prisma.$transaction(async (tx) => {
+						for (const item of itens) {
+							// Verifica se já existe um item igual no mesmo mapa
+							const existing = await tx.mapItens.findFirst({
+								where: {
+									mapId: player.paths[0]?.mapId,
+									name: item.name,
+									kind: item.kind,
+								},
+							});
+	
+							if (existing) {
+								// Atualiza a quantidade se já existir
+								await tx.mapItens.update({
+									where: { id: existing.id },
+									data: { quantity: existing.quantity + item.quantity },
+								});
+							} else {
+								// Cria novo item no mapa
+								await tx.mapItens.create({
+									data: {
+										name: item.name,
+										description: item.description,
+										size: item.size,
+										quantity: item.quantity,
+										kind: item.kind,
+										effect: item.effect,
+										mapId: player.paths[0]?.mapId!,
+									},
+								});
+							}
+						}
+	
+						// Remove todos os itens da mochila do jogador
+						await tx.itens.deleteMany({ where: { playerId: player.id } });
+					});
+				}
+			}
+
+
+		}),
   updateUser: publicProcedure
     .input(
       z.object({
@@ -117,7 +185,12 @@ export const userRouter = createTRPCRouter({
         // 1️⃣ Buscar último path do player
         const player = await prisma.player.findUnique({
           where: { id: input.playerId },
-          include: { lastPath: true }, // supondo que tenha relação lastPath
+          include: { 
+						lastPath: true,
+						paths: {
+							orderBy: { timestamp: 'desc' },
+						} 
+					}, // supondo que tenha relação lastPath
         });
 
         if (!player) throw throwTRPCError('Player not found');
@@ -165,6 +238,7 @@ export const userRouter = createTRPCRouter({
     .input(
       z.object({
         id: z.number(),
+				contaminate: z.boolean().optional(),
       }),
     )
     .mutation(async ({ ctx, input }) => {
@@ -172,42 +246,62 @@ export const userRouter = createTRPCRouter({
       if (!item) throw throwTRPCError('Item não encontrado');
       if (item.quantity <= 0) throw throwTRPCError('Item sem quantidade disponível');
 
-      const itemAtualizado = await ctx.prisma.mapItens.update({
-        where: { id: input.id },
-        data: {
-          quantity: {
-            decrement: 1, // diminui em 1 unidade
-          },
-        },
-      });
+			if(input.contaminate) {
+				const currentEffect = JSON.parse(item.effect) || {};
 
-      let energyValue = 0;
-      try {
-        const efeitoData = JSON.parse(item.effect);
+				const updatedEffect = {
+					...currentEffect,
+					contaminate: +(Math.random() - 0.5).toFixed(2), // valor aleatório entre -0.5 e 0.5
+				};
 
-        if (efeitoData.energy) energyValue = Number(efeitoData.energy);
-      } catch (err) {
-        console.error('Erro ao ler efeito:', err);
-      }
+				const updatedItem = await ctx.prisma.mapItens.update({
+					where: { id: item.id },
+					data: {
+						effect: JSON.stringify(updatedEffect),
+					},
+				});
 
-      const player = await ctx.prisma.player.findUnique({
-        where: { userId: ctx.session?.user.id },
-        select: { energy: true },
-      });
-      if (!player) throw throwTRPCError('PLayer not found');
+				return updatedItem;
+				
+			}
+			else {
+				const itemAtualizado = await ctx.prisma.mapItens.update({
+					where: { id: input.id },
+					data: {
+						quantity: {
+							decrement: 1, // diminui em 1 unidade
+						},
+					},
+				});
 
-      const novaEnergia = Math.min(100, player.energy + energyValue);
+				let energyValue = 0;
+				try {
+					const efeitoData = JSON.parse(item.effect);
 
-      await ctx.prisma.player.update({
-        where: { userId: ctx.session?.user.id },
-        data: { energy: novaEnergia },
-      });
+					if (efeitoData.energy) energyValue = Number(efeitoData.energy);
+				} catch (err) {
+					console.error('Erro ao ler efeito:', err);
+				}
 
-      return {
-        item: itemAtualizado,
-        energiaGanha: energyValue,
-        energiaFinal: novaEnergia,
-      };
+				const player = await ctx.prisma.player.findUnique({
+					where: { userId: ctx.session?.user.id },
+					select: { energy: true },
+				});
+				if (!player) throw throwTRPCError('PLayer not found');
+
+				const novaEnergia = Math.min(100, player.energy + energyValue);
+
+				await ctx.prisma.player.update({
+					where: { userId: ctx.session?.user.id },
+					data: { energy: novaEnergia },
+				});
+
+				return {
+					item: itemAtualizado,
+					energiaGanha: energyValue,
+					energiaFinal: novaEnergia,
+				};
+			}
     }),
 	eatBackpack: publicProcedure
     .input(

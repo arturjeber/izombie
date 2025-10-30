@@ -60,6 +60,7 @@ export const PlayerBunker = () => {
     else setError('Created');
   }
 
+  if (player?.status !== 0) return null;
   return (
     <BoxBase titulo={'New Bunker'} superTitulo={'create hidden location'} id="newbunker">
       <div className="text-2xl text-center mt-4">

@@ -9,8 +9,6 @@ export default function StatusPage() {
   const { data: session, update } = useSession();
   const updateUser = trpc.user.updateUser.useMutation();
   const sendMessage = trpc.message.create.useMutation();
-
-  console.log('OOOOO', player);
   const [error, setError] = React.useState<string | null>(null);
 
   const handleSubmitUser = async (e: React.FormEvent<HTMLFormElement>) => {
