@@ -36,9 +36,7 @@ export default function LoginPage() {
       setError('Código inválido ou expirado.');
     } else {
       // ✅ login completo, sessão criada
-      localStorage.removeItem('pendingEmail'); // apaga apenas o 'token'
-      document.cookie = 'pendingEmail=; path=/; max-age=0';
-      router.replace('/status'); // ou /home, etc
+      router.replace('/start'); // ou /home, etc
       setError('');
     }
   }
@@ -81,7 +79,7 @@ export default function LoginPage() {
           </div>
 
           <button type="submit" className="submit-btn mb-12">
-            Start
+            Check my background
           </button>
 
           <div className="text-2xl text-center mt-4">

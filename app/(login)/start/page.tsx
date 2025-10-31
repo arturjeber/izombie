@@ -1,36 +1,28 @@
 'use client';
 
-import { signIn } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 export default function Page() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
   const router = useRouter();
-
-  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
-    e.preventDefault();
-    const form = e.currentTarget;
-    const formData = new FormData(form);
-
-    const email = formData.get('email');
-
-    signIn('email-request', { email, redirect: false });
-    localStorage.setItem('pendingEmail', email as string);
-    document.cookie = `pendingEmail=${email}; path=/;`;
-    router.replace('/onboarding');
-    setError('');
-    setLoading(false);
+  async function start() {
+    router.replace('/status');
   }
+
+  useEffect(() => {
+    localStorage.removeItem('pendingEmail'); // apaga apenas o 'token'
+    document.cookie = 'pendingEmail=; path=/; max-age=0';
+  }, []);
 
   return (
     <section className="contact" id="login">
-      <h2 className="section-title">Do you best or died trying...</h2>
+      <h2 className="section-title">Do your best or die trying...</h2>
       <div className="contact-form">
-        <button type="button" className="submit-btn">
-          {`Let's survive`}
+        <button onClick={start} type="button" className="submit-btn">
+          {`Let's survive!`}
         </button>
       </div>
     </section>
