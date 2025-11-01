@@ -11,7 +11,7 @@ export default auth(async function middleware(req: NextRequest & { auth?: any })
 
   const email = req.cookies.get('pendingEmail')?.value;
 
-	if(/*session && email && */path === '/start')  return NextResponse.next();
+	if(session && email && path === '/start')  return NextResponse.next();
 
 	if (session && (path == '/' || path == '/join' || path == '/login' || path == '/onboarding' || path == '/start'))
     return NextResponse.redirect(new URL('/status', req.nextUrl.origin));
