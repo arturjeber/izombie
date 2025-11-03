@@ -39,11 +39,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             <Link href="/" className="logo-link">
               <span className={`${orbitron.className} logo-text`}>iZombie</span>
             </Link>
-            <div className={`menu-toggle ${menuOpen ? 'active' : ''}`} onClick={toggleMenu}>
-              <span></span>
-              <span></span>
-              <span></span>
-            </div>
+            <Link href="/" className="box-title !text-base nav-link">
+              back home
+            </Link>
           </div>
         </nav>
 
