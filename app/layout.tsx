@@ -32,6 +32,23 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
             })(window,document,'script','dataLayer','GTM-K7S2S7D8');`,
           }}
         />
+        {/* Google Analytics */}
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-134ZW3WXBK"
+          strategy="afterInteractive"
+        />
+        <Script
+          id="google-analytics"
+          strategy="afterInteractive"
+          dangerouslySetInnerHTML={{
+            __html: `
+              window.dataLayer = window.dataLayer || [];
+              function gtag(){dataLayer.push(arguments);}
+              gtag('js', new Date());
+              gtag('config', 'G-134ZW3WXBK');
+            `,
+          }}
+        />
         <Script id="tiktok-pixel" strategy="afterInteractive">
           {`
             !function (w, d, t) {
