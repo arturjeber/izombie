@@ -42,7 +42,7 @@ model Account {
 }
 
 model VerificationToken {
-  identifier String
+  identifier String 
   token      String   @unique
   expires    DateTime
 

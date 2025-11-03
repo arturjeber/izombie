@@ -63,15 +63,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         </Script>
       </head>
       <body>
-        {/* Google Tag Manager */}
-        <Script
-          id="gtm-body"
-          strategy="afterInteractive"
-          dangerouslySetInnerHTML={{
-            __html: `<noscript><iframe src="https://www.googletagmanager.com/ns.html?id=GTM-K7S2S7D8"
-						height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>`,
-          }}
-        />
+        {/* Google Tag Manager (noscript) */}
+        <noscript>
+          <iframe
+            src="https://www.googletagmanager.com/ns.html?id=GTM-K7S2S7D8"
+            height="0"
+            width="0"
+            style={{ display: 'none', visibility: 'hidden' }}
+          ></iframe>
+        </noscript>
         {/* Background */}
         <div className="grid-bg"></div>
         <div className="gradient-overlay"></div>

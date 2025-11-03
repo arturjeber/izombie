@@ -17,12 +17,12 @@ export default function LoginPage() {
 
     const email = formData.get('email');
 
+    setLoading(true);
     signIn('email-request', { email, redirect: false });
     localStorage.setItem('pendingEmail', email as string);
     document.cookie = `pendingEmail=${email}; path=/;`;
     router.replace('/onboarding');
     setError('');
-    setLoading(false);
   }
 
   if (loading)
