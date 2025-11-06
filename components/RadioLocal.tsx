@@ -1,9 +1,11 @@
 'use client';
 import { trpc } from '@/lib/trpcClient';
 import { useSession } from 'next-auth/react';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 
 export default function RadioLocal({ estacao }: { estacao: string }) {
+  const sectionRef = useRef<HTMLDivElement>(null);
+
   const [text, setText] = useState('');
   const [canSend, setCanSend] = useState(true);
 
@@ -17,6 +19,13 @@ export default function RadioLocal({ estacao }: { estacao: string }) {
 
   const sendMessage = trpc.chat.send.useMutation({
     onSuccess: () => {
+      const offset = -200; // ajuste aqui o quanto quer subir (em pixels)
+      const element = sectionRef.current;
+      if (!element) return;
+
+      const y = element.getBoundingClientRect().top + window.scrollY + offset;
+
+      window.scrollTo({ top: y, behavior: 'smooth' });
       setText('');
       utils.chat.getMessages.invalidate();
       setCanSend(false); // 🔒 desabilita botão
@@ -27,7 +36,7 @@ export default function RadioLocal({ estacao }: { estacao: string }) {
 
   return (
     <>
-      <div className="flex flex-col h-[400px] overflow-hidden">
+      <div ref={sectionRef} className="flex flex-col h-[400px] overflow-hidden">
         {/* Lista de mensagens */}
         <div className="flex-1 overflow-y-auto p-2 mb-2">
           {messages?.length ? (

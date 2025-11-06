@@ -57,7 +57,10 @@ export default function StatusPage() {
     form.reset();
   };
 
-  console.log('settings page player:', player);
+  const handleLogout = () => {
+    signOut({ callbackUrl: '/' });
+  };
+
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4  ">
       <section className="contact" id="login">
@@ -122,7 +125,7 @@ export default function StatusPage() {
       </section>
       <section className="contact" id="login">
         <h2 className="box-title2 truncate">Bye bye</h2>
-        <button type="button" onClick={() => signOut()} className="submit-btn mb-12">
+        <button type="button" onClick={handleLogout} className="submit-btn mb-12">
           Log out
         </button>
       </section>

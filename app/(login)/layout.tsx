@@ -10,8 +10,6 @@ import { useEffect, useState } from 'react';
 
 const orbitron = Orbitron({ subsets: ['latin'], weight: ['400', '700', '900'] });
 export default function RootLayout({ children }: { children: React.ReactNode }) {
-  const [menuOpen, setMenuOpen] = useState(false);
-  const toggleMenu = () => setMenuOpen(!menuOpen);
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
@@ -21,33 +19,21 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   }, []);
 
   return (
-    <html lang="en">
-      <body>
-        {/* Background */}
-        <div className="grid-bg"></div>
-        <div className="gradient-overlay"></div>
-        <div className="scanlines"></div>
-        <div className="shapes-container">
-          <div className="shape shape-circle"></div>
-          <div className="shape shape-triangle"></div>
-          <div className="shape shape-square"></div>
+    <>
+      {/* Navbar */}
+      <nav id="navbar" className={scrolled ? 'scrolled' : ''}>
+        <div className="nav-container">
+          <Link href="/" className="logo-link">
+            <span className={`${orbitron.className} logo-text`}>iZombie</span>
+          </Link>
+          <Link href="/" className="box-title !text-base nav-link">
+            back home
+          </Link>
         </div>
+      </nav>
 
-        {/* Navbar */}
-        <nav id="navbar" className={scrolled ? 'scrolled' : ''}>
-          <div className="nav-container">
-            <Link href="/" className="logo-link">
-              <span className={`${orbitron.className} logo-text`}>iZombie</span>
-            </Link>
-            <Link href="/" className="box-title !text-base nav-link">
-              back home
-            </Link>
-          </div>
-        </nav>
-
-        {/* Conteúdo da página */}
-        <Providers>{children}</Providers>
-      </body>
-    </html>
+      {/* Conteúdo da página */}
+      <Providers>{children}</Providers>
+    </>
   );
 }

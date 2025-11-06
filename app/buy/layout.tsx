@@ -2,7 +2,6 @@
 
 import '@/app/globals.css';
 import '@/styles/main-design.css';
-import { signOut } from 'next-auth/react';
 
 import { Orbitron } from 'next/font/google';
 import Link from 'next/link';
@@ -21,12 +20,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-
-  const logout = async () => {
-    signOut({
-      callbackUrl: '/', // para onde redirecionar depois do logout
-    });
-  };
 
   return (
     <>
